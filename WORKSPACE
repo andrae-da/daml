@@ -336,7 +336,7 @@ haskell_register_ghc_nixpkgs(
         "-Wwarn",
     ],
     repositories = dev_env_nix_repos,
-    version = "8.6.5",
+    version = "8.8.2",
 )
 
 # Used by Windows
