@@ -80,7 +80,7 @@ import Development.IDE.Core.RuleTypes.Daml
 
 import DA.Bazel.Runfiles
 import DA.Daml.DocTest
-import DA.Daml.LFConversion (convertModule, sourceLocToRange)
+import DA.Daml.LFConversion (convertModule)
 import DA.Daml.LFConversion.UtilLF
 import DA.Daml.LF.Reader (parseUnitId)
 import qualified DA.Daml.LF.Ast as LF
