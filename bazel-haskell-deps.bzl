@@ -174,9 +174,9 @@ haskell_cabal_binary(
     visibility = ["//visibility:public"],
 )
 """,
-        sha256 = "d1a843f4383223f85de4d91759545966f33a139d0019ab30a2f766bf9a7d62bf",
-        strip_prefix = "hpp-0.6.1",
-        urls = ["http://hackage.haskell.org/package/hpp-0.6.1/hpp-0.6.1.tar.gz"],
+        sha256 = "471b67391f01026295c75b6b358b4dd8bd0a82ce2b72fac93cbcbbf02cec1e3b",
+        strip_prefix = "hpp-1d395dc985965f982e80a0b959e0aabe6920ecc8",
+        urls = ["http://github.com/acowley/hpp/archive/1d395dc985965f982e80a0b959e0aabe6920ecc8.tar.gz"],
     )
 
     http_archive(
