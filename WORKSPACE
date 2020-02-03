@@ -342,7 +342,7 @@ haskell_register_ghc_nixpkgs(
 # Used by Windows
 haskell_register_ghc_bindists(
     compiler_flags = common_ghc_flags,
-    version = "8.6.5",
+    version = "8.8.2",
 ) if is_windows else None
 
 nixpkgs_package(
