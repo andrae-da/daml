@@ -281,7 +281,7 @@ filegroup(
 nix_ghc_deps = common_nix_file_deps + [
     "//nix:ghc.nix",
     "//nix:with-packages-wrapper.nix",
-    "//nix:overrides/ghc-8.6.5.nix",
+    "//nix:overrides/ghc-8.8.2.nix",
     "//nix:overrides/ghc-8.6.3-binary.nix",
 ]
 
