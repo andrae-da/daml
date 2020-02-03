@@ -58,10 +58,9 @@ import qualified Data.NameMap as NM
 import qualified Data.Set as Set
 import qualified Data.Text.Extended as T
 import Development.IDE.Core.API
-import Development.IDE.Core.RuleTypes.Daml (GetParsedModule(..), GenerateStablePackages(..), GeneratePackageMap(..))
+import Development.IDE.Core.RuleTypes.Daml (GenerateStablePackages(..), GeneratePackageMap(..))
 import Development.IDE.Core.Rules
-import Development.IDE.Core.Rules.Daml (getDalf, getDlintIdeas)
-import Development.IDE.Core.Service (runAction)
+import Development.IDE.Core.Rules.Daml (getDlintIdeas)
 import Development.IDE.Core.Shake
 import Development.IDE.GHC.Util (hscEnv, moduleImportPath)
 import Development.IDE.Types.Location
