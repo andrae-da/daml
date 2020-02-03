@@ -7,9 +7,8 @@ module Options (
   ) where
 
 import           Control.Monad.Logger
-import           Data.Monoid ((<>))
 import           Options.Applicative
-import           Options.Applicative.Types (readerAsk, readerError)
+import           Options.Applicative.Types (readerAsk)
 
 import Types
 
