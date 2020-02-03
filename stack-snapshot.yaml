@@ -1,4 +1,4 @@
-resolver: lts-14.1
+resolver: nightly-2020-02-03
 packages:
   - archive: http://digitalassetsdk.bintray.com/ghc-lib/ghc-lib-parser-8.8.1.20200122.tar.gz
     sha256: "7b77b8c6a9528e8e3856d783685dddc253c1e17d2b4bd52f7fd4363b65ce5adf"
