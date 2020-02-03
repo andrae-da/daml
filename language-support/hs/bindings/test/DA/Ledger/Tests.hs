@@ -12,7 +12,7 @@ import DA.Bazel.Runfiles
 import DA.Daml.LF.Proto3.Archive (DecodingMode(DecodeAsMain), decodeArchive)
 import DA.Daml.LF.Reader(Dalfs(..),readDalfs)
 import DA.Ledger as Ledger
-import DA.Ledger.Sandbox (Sandbox,SandboxSpec(..),startSandbox,shutdownSandbox,withSandbox)
+import DA.Ledger.Sandbox (AuthSpec(..),Sandbox(..),SandboxSpec(..),startSandbox,shutdownSandbox,withSandbox)
 import qualified DA.Ledger.Sandbox as Sandbox
 import Data.List (isPrefixOf,isInfixOf,(\\))
 import Prelude hiding(Enum)
