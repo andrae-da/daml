@@ -17,7 +17,6 @@ import Control.Monad
 import qualified CmdLineParser as Cmd (warnMsg)
 import Data.IORef
 import Data.List
-import DynFlags (parseDynamicFilePragma)
 import qualified Data.Text as T
 import qualified Platform as P
 import qualified EnumSet
