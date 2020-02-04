@@ -65,6 +65,8 @@ def daml_deps():
                 "@com_github_digital_asset_daml//bazel_tools:haskell-opt.patch",
                 # Remove once #1200 was merged on upstream rules_haskell.
                 "@com_github_digital_asset_daml//bazel_tools:haskell-optional-cabal-haddock.patch",
+                # Upstream to rules_haskell and remove.
+                "@com_github_digital_asset_daml//bazel_tools:haskell-ghc-8.8.2-bindist.patch",
             ],
             patch_args = ["-p1"],
             sha256 = rules_haskell_sha256,
