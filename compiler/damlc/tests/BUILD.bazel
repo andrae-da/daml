@@ -4,6 +4,7 @@
 load("//bazel_tools:haskell.bzl", "da_haskell_binary", "da_haskell_test")
 load("@os_info//:os_info.bzl", "is_windows")
 load(":util.bzl", "damlc_compile_test", "damlc_integration_test")
+load("@build_environment//:configuration.bzl", "sdk_version")
 
 # Tests for the lax CLI parser
 da_haskell_test(
@@ -366,11 +367,10 @@ sh_test(
     srcs = ["src/stable-packages.sh"],
     args = [
         "$(location //compiler/damlc)",
-        "$(location //:VERSION)",
+        sdk_version,
         "$(POSIX_DIFF)",
     ],
     data = [
-        "//:VERSION",
         "//compiler/damlc",
     ],
     toolchains = [

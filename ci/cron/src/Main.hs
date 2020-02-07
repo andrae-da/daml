@@ -203,12 +203,28 @@ build_docs_folder path versions latest = do
             shell_ $ "cp -r " <> from <> " " <> to
         build version path = do
             shell_ $ "git checkout v" <> version
+            shell_ "git reset --hard"
             -- Maven does not accept http connections anymore; this patches the
             -- scala rules for Bazel to use https instead. This is not needed
             -- after 0.13.43.
             if to_v version < to_v "0.13.44"
             then do
                 shell_ "git -c user.name=CI -c user.email=CI@example.com cherry-pick 0c4f9d7f92c4f2f7e2a75a0d85db02e20cbb497b"
+            else pure ()
+            -- Starting with 0.13.54, we have changed the way in which we
+            -- trigger releases. Rather than releasing the current commit by
+            -- changing the VERSION file, we now mark an existing commit as the
+            -- source code for a release by changing the LATEST file. However,
+            -- release notes still need to be taken from the release commit
+            -- (i.e. the one that changes the LATEST file, not the one being
+            -- pointed to).
+            if to_v version > to_v "0.13.53"
+            then do
+                -- The release-triggering commit does not have a tag, so we
+                -- need to find it by walking through the git history of the
+                -- LATEST file.
+                sha <- find_commit_for_version version
+                shell_ $ "git checkout " <> sha <> " -- docs/source/support/release-notes.rst"
             else pure ()
             robustly_download_nix_packages
             shell_ "bazel build //docs:docs"
@@ -225,6 +241,20 @@ build_docs_folder path versions latest = do
                                 & List.intercalate ", "
                                 & \s -> "{" <> s <> "}"
             writeFile (path </> "versions.json") versions_json
+
+find_commit_for_version :: String -> IO String
+find_commit_for_version version = do
+    release_commits <- lines <$> shell "git log --format=%H origin/master -- LATEST"
+    ver_sha <- init <$> (shell $ "git rev-parse v" <> version)
+    let expected = ver_sha <> " " <> version
+    matching <- Maybe.catMaybes <$> Traversable.for release_commits (\sha -> do
+        latest <- init <$> (shell $ "git show " <> sha <> ":LATEST")
+        if latest == expected
+        then return $ Just sha
+        else return Nothing)
+    case matching of
+      [sha] -> return sha
+      _ -> error $ "Expected single commit to match release " <> version <> ", but instead found: " <> show matching
 
 fetch_s3_versions :: IO (Set.Set Version)
 fetch_s3_versions = do

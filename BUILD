@@ -11,6 +11,7 @@ load(
 )
 load("//bazel_tools:haskell.bzl", "da_haskell_library", "da_haskell_repl")
 load("@os_info//:os_info.bzl", "is_windows")
+load("@build_environment//:configuration.bzl", "ghc_version", "mvn_version", "sdk_version")
 
 exports_files([".hlint.yaml"])
 
@@ -110,41 +111,32 @@ config_setting(
 exports_files([
     "NOTICES",
     "LICENSE",
-    "VERSION",
     "CHANGELOG",
     "tsconfig.json",
 ])
 
-# FIXME(#448): We're currently assigning version (100+x).y.z to all components
-# in SDK version x.y.z. As long as x < 10, 10x.y.z == (100+x).y.z.  Since we'll
-# stop splitting the SDK into individual components _very_ soon, this rule
-# will not survive until x >= 10.
 genrule(
-    name = "component-version",
-    srcs = ["VERSION"],
-    outs = ["COMPONENT-VERSION"],
-    cmd = """
-        echo -n 10 > $@
-        cat $(location VERSION) >> $@
-    """,
+    name = "mvn_version_file",
+    outs = ["MVN_VERSION"],
+    cmd = "echo -n {} > $@".format(mvn_version),
 )
 
 genrule(
     name = "sdk-version-hs",
-    srcs = [
-        "VERSION",
-        ":component-version",
-    ],
+    srcs = [],
     outs = ["SdkVersion.hs"],
     cmd = """
-        SDK_VERSION=$$(cat $(location VERSION))
         cat > $@ <<EOF
 module SdkVersion where
-sdkVersion, damlStdlib :: String
-sdkVersion = "$$SDK_VERSION"
-damlStdlib = "daml-stdlib-" ++ sdkVersion
+sdkVersion, damlStdlib, mvnVersion :: String
+sdkVersion = "{ghc}"
+damlStdlib = "daml-stdlib-{ghc}"
+mvnVersion = "{mvn}"
 EOF
-    """,
+    """.format(
+        ghc = ghc_version,
+        mvn = mvn_version,
+    ),
 )
 
 da_haskell_library(

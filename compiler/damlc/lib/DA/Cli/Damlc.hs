@@ -35,7 +35,7 @@ import DA.Daml.LanguageServer
 import DA.Daml.Options.Types
 import DA.Daml.Project.Config
 import DA.Daml.Project.Consts
-import DA.Daml.Project.Types (ConfigError, ProjectPath(..))
+import DA.Daml.Project.Types (ConfigError(..), ProjectPath(..))
 import DA.Daml.Visual
 import qualified DA.Pretty
 import qualified DA.Service.Logger as Logger
@@ -476,6 +476,24 @@ execLint inputFile opts =
          DlintEnabled _ _ -> opts
          DlintDisabled  -> opts{optDlintUsage=DlintEnabled defaultDir True}
 
+-- | Gets a ghc_pkg-compatible version string
+--
+-- The DAML SDK uses semantic versioning, while internally we need a version
+-- string that ghc_pkg can understand. We do that by removing the `-alpha`
+-- qualifier when present.
+--
+-- Expected version strings:
+-- 0.13.51 -> release, no change
+-- 0.13.51-alpha.20200212.3024.04e6fa2c -> alpha release, change to
+         --                                0.13.51.20200212.3024 internally
+getVersion :: ProjectConfig -> Either ConfigError PackageSdkVersion
+getVersion project = do
+    rawVersion <- queryProjectConfigRequired ["sdk-version"] project
+    case Split.splitOn "-alpha" rawVersion of
+      [v] -> return $ PackageSdkVersion v
+      [v, pr] -> return $ PackageSdkVersion $ v ++ dropEnd 9 pr
+      _ -> Left $ ConfigFieldInvalid "sdk-version" [] "invalid version name"
+
 -- | Parse the daml.yaml for package specific config fields.
 parseProjectConfig :: ProjectConfig -> Either ConfigError PackageConfigFields
 parseProjectConfig project = do
@@ -485,7 +503,7 @@ parseProjectConfig project = do
     pVersion <- queryProjectConfigRequired ["version"] project
     pDependencies <- queryProjectConfigRequired ["dependencies"] project
     pDataDependencies <- fromMaybe [] <$> queryProjectConfig ["data-dependencies"] project
-    pSdkVersion <- queryProjectConfigRequired ["sdk-version"] project
+    pSdkVersion <- getVersion project
     Right PackageConfigFields {..}
 
 defaultProjectPath :: ProjectPath
