@@ -183,7 +183,7 @@ object Hash {
         // Struct: should never be encountered
         case Value.ValueStruct(_) =>
           sys.error("Hashing of struct values is not supported")
-        case Value.ValueBigDecimal(d) =>
+        case Value.ValueBigDecimal(_) =>
           sys.error("Hashing of (non-serialisable) BigDecimal values is not supported")
       }
 
