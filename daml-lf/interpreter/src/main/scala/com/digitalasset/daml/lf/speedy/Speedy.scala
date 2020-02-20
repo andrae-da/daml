@@ -535,8 +535,8 @@ object Speedy {
               case _ => false
             }
           }
-        case SContractId(_) | SDate(_) | SNumeric(_) | SInt64(_) | SParty(_) | SText(_) |
-            STimestamp(_) | SStruct(_, _) | STextMap(_) | SGenMap(_) | SRecord(_, _, _) |
+        case SContractId(_) | SDate(_) | SNumeric(_) | SBigDecimal(_) | SInt64(_) | SParty(_) |
+             SText(_) | STimestamp(_) | SStruct(_, _) | STextMap(_) | SGenMap(_) | SRecord(_, _, _) |
             SAny(_, _) | STypeRep(_) | STNat(_) | _: SPAP | SToken =>
           crash("Match on non-matchable value")
       }

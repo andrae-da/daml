@@ -236,6 +236,7 @@ object Value extends CidContainer1WithDefaultCidResolver[Value] {
   final case class ValueList[+Cid](values: FrontStack[Value[Cid]]) extends Value[Cid]
   final case class ValueInt64(value: Long) extends ValueCidlessLeaf
   final case class ValueNumeric(value: Numeric) extends ValueCidlessLeaf
+  final case class ValueBigDecimal(value: DamlBigDecimal) extends ValueCidlessLeaf
   // Note that Text are assume to be UTF8
   final case class ValueText(value: String) extends ValueCidlessLeaf
   final case class ValueTimestamp(value: Time.Timestamp) extends ValueCidlessLeaf
@@ -261,8 +262,10 @@ object Value extends CidContainer1WithDefaultCidResolver[Value] {
   implicit def `Value Equal instance`[Cid: Equal]: Equal[Value[Cid]] =
     ScalazEqual.withNatural(Equal[Cid].equalIsNatural) {
       ScalazEqual.match2(fallback = false) {
-        case a @ (_: ValueInt64 | _: ValueNumeric | _: ValueText | _: ValueTimestamp |
-            _: ValueParty | _: ValueBool | _: ValueDate | ValueUnit) => { case b => a == b }
+        case a @ (_: ValueInt64 | _: ValueNumeric | _: ValueBigDecimal | _: ValueText |
+                  _: ValueTimestamp | _: ValueParty | _: ValueBool | _: ValueDate | ValueUnit) => {
+          case b => a == b
+        }
         case r: ValueRecord[Cid] => {
           case ValueRecord(tycon2, fields2) =>
             import r._

@@ -52,6 +52,8 @@ private[speedy] object Hasher {
                 loop(cmdsRest, i.toInt :: stack)
               case SNumeric(n) =>
                 loop(cmdsRest, n.hashCode() :: stack)
+              case SBigDecimal(d) =>
+                loop(cmdsRest, d.hashCode() :: stack)
               case SText(s) =>
                 loop(cmdsRest, s.hashCode :: stack)
               case SDate(d) =>

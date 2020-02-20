@@ -32,6 +32,7 @@ sealed trait SValue {
     this match {
       case SInt64(x) => V.ValueInt64(x)
       case SNumeric(x) => V.ValueNumeric(x)
+      case SBigDecimal(d) => V.ValueBigDecimal(d)
       case SText(x) => V.ValueText(x)
       case STimestamp(x) => V.ValueTimestamp(x)
       case SParty(x) => V.ValueParty(x)
@@ -184,6 +185,7 @@ object SValue {
   sealed trait SPrimLit extends SValue with Equals
   final case class SInt64(value: Long) extends SPrimLit
   final case class SNumeric(value: Numeric) extends SPrimLit
+  final case class SBigDecimal(value: DamlBigDecimal) extends SPrimLit
   final case class SText(value: String) extends SPrimLit
   final case class STimestamp(value: Time.Timestamp) extends SPrimLit
   final case class SParty(value: Party) extends SPrimLit
@@ -226,6 +228,7 @@ object SValue {
       case V.ValueContractId(coid) => SContractId(coid)
       case V.ValueInt64(x) => SInt64(x)
       case V.ValueNumeric(x) => SNumeric(x)
+      case V.ValueBigDecimal(d) => SBigDecimal(d)
       case V.ValueText(t) => SText(t)
       case V.ValueTimestamp(t) => STimestamp(t)
       case V.ValueParty(p) => SParty(p)

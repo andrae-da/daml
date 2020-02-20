@@ -587,6 +587,9 @@ object ValueCoder {
 
           case ValueStruct(fields) =>
             throw Err(s"Trying to serialize struct, which are not serializable. Fields: $fields")
+
+          case ValueBigDecimal(_) =>
+            throw Err(s"Trying to serialize a BigDecimal, which is not serializable.")
         }
       }
     }
