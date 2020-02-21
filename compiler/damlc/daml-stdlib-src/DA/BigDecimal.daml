@@ -47,3 +47,5 @@ data BigDecimal r = BigDecimal with
 toNumeric : (RoundingMode r, NumericScale n) => BigDecimal r -> Optional Numeric n
 toNumeric d = primitive @"BEbigDecToNumeric" (primRoundingMode d) d.bigDec
 
+toBigDecimal : forall r n. (RoundingMode r, NumericScale n) => Numeric n -> BigDecimal r
+toBigDecimal n = BigDecimal with bigDec = primitive @"BEnumericToBigDec" n
