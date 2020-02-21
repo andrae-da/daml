@@ -287,6 +287,7 @@ encodeBuiltinType = P.Enumerated . Right . \case
     BTNumeric -> P.PrimTypeNUMERIC
     BTAny -> P.PrimTypeANY
     BTTypeRep -> P.PrimTypeTYPE_REP
+    BTBigDecimal -> P.PrimTypeBIGDECIMAL
 
 encodeType' :: Type -> Encode P.Type
 encodeType' typ = fmap (P.Type . Just) $ case typ ^. _TApps of
@@ -500,6 +501,9 @@ encodeBuiltinExpr = \case
     BETextReplicate -> builtin P.BuiltinFunctionTEXT_REPLICATE
     BETextSplitOn -> builtin P.BuiltinFunctionTEXT_SPLIT_ON
     BETextIntercalate -> builtin P.BuiltinFunctionTEXT_INTERCALATE
+
+    BENumericToBigDec -> builtin P.BuiltinFunctionNUMERIC_TO_BIGDEC
+    BEBigDecToNumeric -> builtin P.BuiltinFunctionBIGDEC_TO_NUMERIC
 
     where
       builtin = pure . P.ExprSumBuiltin . P.Enumerated . Right

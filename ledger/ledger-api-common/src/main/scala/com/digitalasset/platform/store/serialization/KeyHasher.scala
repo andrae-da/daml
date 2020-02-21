@@ -108,6 +108,10 @@ object KeyHasher extends KeyHasher {
       // Struct: should never be encountered
       case ValueStruct(_) =>
         sys.error("Hashing of struct values is not supported")
+
+      // BigDecimal: likewise
+      case ValueBigDecimal(_) =>
+        sys.error("Hashing of BigDecimal values is not supported")
     }
   }
 

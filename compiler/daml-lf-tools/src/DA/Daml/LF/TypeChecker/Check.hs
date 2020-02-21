@@ -124,6 +124,7 @@ kindOfBuiltin = \case
   BTArrow -> KStar `KArrow` KStar `KArrow` KStar
   BTAny -> KStar
   BTTypeRep -> KStar
+  BTBigDecimal -> KStar
 
 kindOf :: MonadGamma m => Type -> m Kind
 kindOf = \case
@@ -279,6 +280,9 @@ typeOfBuiltin = \case
   BETextReplicate -> pure (TInt64 :-> TText :-> TText)
   BETextSplitOn -> pure (TText :-> TText :-> TList TText)
   BETextIntercalate -> pure (TText :-> TList TText :-> TText)
+
+  BENumericToBigDec -> pure $ TForall (alpha, KNat) $ TNumeric tAlpha :-> TBigDecimal
+  BEBigDecToNumeric -> pure $ TForall (alpha, KNat) $ TBigDecimal :-> TOptional (TNumeric tAlpha)
 
   where
     tComparison btype = TBuiltin btype :-> TBuiltin btype :-> TBool

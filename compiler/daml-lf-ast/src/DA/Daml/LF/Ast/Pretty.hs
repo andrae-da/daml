@@ -123,7 +123,8 @@ instance Pretty BuiltinType where
   pPrint = \case
     BTInt64          -> "Int64"
     BTDecimal        -> "Decimal"
-    BTNumeric -> "Numeric"
+    BTNumeric        -> "Numeric"
+    BTBigDecimal     -> "BigDecimal"
     BTText           -> "Text"
     BTTimestamp      -> "Timestamp"
     BTParty          -> "Party"
@@ -280,6 +281,8 @@ instance Pretty BuiltinExpr where
     BETextReplicate -> "TEXT_REPLICATE"
     BETextSplitOn -> "TEXT_SPLIT_ON"
     BETextIntercalate -> "TEXT_INTERCALATE"
+    BENumericToBigDec -> "NUMERIC_TO_BIGDECIMAL"
+    BEBigDecToNumeric -> "BIGDECIMAL_TO_NUMERIC"
 
     where
       epochToText fmt secs =

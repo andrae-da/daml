@@ -192,6 +192,8 @@ safetyStep = \case
       BETextReplicate -> Safe 2
       BETextSplitOn -> Safe 2
       BETextIntercalate -> Safe 2
+      BENumericToBigDec -> Safe 1
+      BEBigDecToNumeric -> Safe 1 -- returns Optional in case of overflow/rounding trouble
 
   ERecConF _ fs -> minimum (Safe 0 : map snd fs)
   ERecProjF _ _ s -> s `min` Safe 0

@@ -148,6 +148,7 @@ object LfEngineToApi {
                 apiFields
               )))
         }
+      case Lf.ValueBigDecimal(_) => Left("big decimals not allowed")
     }
 
   def lfContractKeyToApiValue(
