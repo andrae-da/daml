@@ -196,5 +196,12 @@ data Decimal =
   -- | HIDE
   Decimal Opaque
 
+#endif
+
+#ifdef DAML_BIGDECIMAL
+
+data BigDec =
+  -- | HIDE
+  BigDec Opaque
 
 #endif
