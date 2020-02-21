@@ -320,7 +320,7 @@ data BuiltinExpr
 
   -- BigDecimal operations
   | BENumericToBigDec            -- :: Numeric n -> BigDecimal
-  | BEBigDecToNumeric            -- :: BigDecimal -> Optional (Numeric n)
+  | BEBigDecToNumeric            -- :: Text -> BigDecimal -> Optional (Numeric n)
   deriving (Eq, Data, Generic, NFData, Ord, Show)
 
 
