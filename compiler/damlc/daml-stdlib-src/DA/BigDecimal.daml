@@ -23,7 +23,7 @@ import GHC.Types (primitive)
 -- | Rounding Mode is represented as a type annotation on the BigDecimal type
 class RoundingMode r where
     -- | Adjustment to the coefficient required given a computed rounding state and a given sign
-    primRoundingMode : BigDecimal r -> Text
+    primRoundingMode : Proxy r -> Text
 
 data Floor             -- ^ 1.1 -> 1, -1.1 -> -2, 1.5 -> 1, -1.5 -> -2, 1.6 -> 1, -1.6 -> -2, 2.5 -> 2, -2.5 -> -3
 data Ceiling           -- ^ 1.1 -> 2, -1.1 -> -1, 1.5 -> 2, -1.5 -> -1, 1.6 -> 2, -1.6 -> -1, 2.5 -> 3, -2.5 -> -2
@@ -49,3 +49,49 @@ toNumeric d = primitive @"BEbigDecToNumeric" (primRoundingMode d) d.bigDec
 
 toBigDecimal : forall r n. (RoundingMode r, NumericScale n) => Numeric n -> BigDecimal r
 toBigDecimal n = BigDecimal with bigDec = primitive @"BEnumericToBigDec" n
+
+cast : (RoundingMode r, BigDecimal s) => BigDecimal s -> BigDecimal r
+cast d = BigDecimal d.bigDec
+
+-- Initial idea of how the implementation of functionality will look.
+-- Sidelined until we have a working end-to-end representation.
+--
+--castAndRound : (RoundingMode r, BigDecimal s) => Int -> BigDecimal s -> BigDecimal r
+--castAndRound p d = primitive @"BEDivBigDec" p (primRoundingMode d) d.bigDec munit
+--
+--instance RoundingMode r => Additive (BigDecimal r) where
+--    (+) = add
+--    (-) = subtract
+--    negate a = aunit - a
+--    aunit = toBigDecimal @0 0.0
+--
+--instance RoundingMode r => Multiplicative (BigDecimal r) where
+--    (*) = multiply
+--    a ^ b = primitive
+--    munit = toBigDecimal @0 1.0
+--
+--instance RoundingMode r => Signed (BigDecimal r) where
+--    signum d = if not primitive @"BELEBigDec" d.bigDec aunit
+--               then negate munit
+--               else if not primitive @"BELEBigDec" aunit d.bigDec
+--               then munit
+--               else aunit
+--
+--    abs d = if primitive @"BELEBigDec" aunit d
+--            then d
+--            else negate d
+--
+--add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+--add a b = primitive @"BEAddBigDec" a.bigDec b.bigDec
+--
+--add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+--add a b = primitive @"BESubBigDec" a.bigDec b.bigDec
+--
+--mul : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+--mul a b = primitive @"BEMulBigDec" a.bigDec b.bigDec
+--
+--div : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> BigDecimal r
+--div p a b = primitive @"BEDivBigDec" p (primRoundingMode (aunit @r)) a.bigDec b.bigDec
+--
+--pow : forall r s t. (RoundingMode r, RoundingMode s) => BigDecimal s -> Int -> BigDecimal r
+--pow a b = primitive @"BEPowBigDec" a.bigDec b.bigDec
