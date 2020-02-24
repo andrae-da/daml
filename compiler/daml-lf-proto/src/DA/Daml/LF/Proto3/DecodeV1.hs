@@ -701,7 +701,7 @@ decodePrim = pure . \case
   LF1.PrimTypeINT64 -> BTInt64
   LF1.PrimTypeDECIMAL -> BTDecimal
   LF1.PrimTypeNUMERIC -> BTNumeric
-  LF1.PrimTypeBIGDECIMAL -> error "BTBigDecimal"
+  LF1.PrimTypeBIGDECIMAL -> BTBigDecimal
   LF1.PrimTypeTEXT    -> BTText
   LF1.PrimTypeTIMESTAMP -> BTTimestamp
   LF1.PrimTypePARTY   -> BTParty
