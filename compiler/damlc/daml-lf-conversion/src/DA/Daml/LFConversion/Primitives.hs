@@ -255,8 +255,10 @@ convertPrim _ "BETextSplitOn" (TText :-> TText :-> TList TText) = EBuiltin BETex
 convertPrim _ "BETextIntercalate" (TText :-> TList TText :-> TText) = EBuiltin BETextIntercalate
 
 -- Proposed BigDecimal support.
-convertPrim _ "BEBigDecToNumeric" (TBigDecimal :-> TNumeric n) = EBuiltin BEBigDecToNumeric `ETyApp` n
-convertPrim _ "BENumericToBigDec" (TNumeric _ :-> TBigDecimal) = EBuiltin BENumericToBigDec
+convertPrim _ "BEBigDecToNumeric" (TText :-> TBigDecimal :-> TOptional(TNumeric n)) =
+  EBuiltin BEBigDecToNumeric `ETyApp` n
+convertPrim _ "BENumericToBigDec" (TNumeric _ :-> TBigDecimal) =
+  EBuiltin BENumericToBigDec
 
 -- Template Desugaring.
 

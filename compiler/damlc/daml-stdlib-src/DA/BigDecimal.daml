@@ -46,13 +46,16 @@ instance RoundingMode HalfAwayFromZero where primRoundingMode _ = "HALF_UP"
 data BigDecimal r = BigDecimal BigDec
 
 toNumeric : (RoundingMode r, NumericScale n) => BigDecimal r -> Optional (Numeric n)
-toNumeric d@(BigDecimal bigDec) = primitive @"BEBigDecToNumeric" (primRoundingMode d) bigDec
+toNumeric d@(BigDecimal bigDec) = bigDecToNumeric (primRoundingMode d) bigDec
 
-toBigDecimal : forall r n. (RoundingMode r, NumericScale n) => Numeric n -> BigDecimal r
-toBigDecimal n = BigDecimal $ toBigDec n
+bigDecToNumeric : NumericScale n => Text -> BigDec -> Optional (Numeric n)
+bigDecToNumeric = primitive @"BEBigDecToNumeric"
 
-toBigDec : (NumericScale n) => Numeric n -> BigDec
-toBigDec n = primitive @"BENumericToBigDec" n
+toBigDecimal : (RoundingMode r) => Numeric n -> BigDecimal r
+toBigDecimal = BigDecimal . toBigDec
+
+toBigDec : Numeric n -> BigDec
+toBigDec = primitive @"BENumericToBigDec"
 
 cast : (RoundingMode r, RoundingMode s) => BigDecimal s -> BigDecimal r
 cast (BigDecimal bigDec) = BigDecimal bigDec
