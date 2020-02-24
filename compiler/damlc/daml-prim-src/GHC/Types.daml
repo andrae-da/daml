@@ -20,6 +20,9 @@ module GHC.Types (
         Ordering(..),
         Symbol,
         Text, Decimal,
+#ifdef DAML_UNSTABLE
+        BigDec,
+#endif
         Opaque,
         ifThenElse,
         primitive, magic, external,
