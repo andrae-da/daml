@@ -49,6 +49,7 @@ mayImportInternal =
         , "DA.Generics"
         , "DA.Text"
         , "DA.Numeric"
+        , "DA.BigDecimal"
 
         -- These modules are just listed to disable the record preprocessor.
         , "DA.NonEmpty.Types"

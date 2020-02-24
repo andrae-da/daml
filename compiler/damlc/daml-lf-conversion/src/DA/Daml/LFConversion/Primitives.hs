@@ -254,6 +254,10 @@ convertPrim _ "BETextReplicate" (TInt64 :-> TText :-> TText) = EBuiltin BETextRe
 convertPrim _ "BETextSplitOn" (TText :-> TText :-> TList TText) = EBuiltin BETextSplitOn
 convertPrim _ "BETextIntercalate" (TText :-> TList TText :-> TText) = EBuiltin BETextIntercalate
 
+-- Proposed BigDecimal support.
+convertPrim _ "BEBigDecToNumeric" (TBigDecimal :-> TNumeric n) = EBuiltin BEBigDecToNumeric `ETyApp` n
+convertPrim _ "BENumericToBigDec" (TNumeric _ :-> TBigDecimal) = EBuiltin BENumericToBigDec
+
 -- Template Desugaring.
 
 convertPrim _ "UCreate" (TCon template :-> TUpdate (TContractId (TCon template')))

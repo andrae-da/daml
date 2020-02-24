@@ -35,25 +35,27 @@ data AwayFromZero      -- ^ 1.1 -> 2, -1.1 -> -2, 1.5 -> 2, -1.5 -> -2, 1.6 -> 2
 data HalfTowardZero    -- ^ 1.1 -> 1, -1.1 -> -1, 1.5 -> 1, -1.5 -> -1, 1.6 -> 2, -1.6 -> -2, 2.5 -> 2, -2.5 -> -2
 data HalfAwayFromZero  -- ^ 1.1 -> 1, -1.1 -> -1, 1.5 -> 2, -1.5 -> -2, 1.6 -> 2, -1.6 -> -2, 2.5 -> 3, -2.5 -> -3
 
-instance RoundingMode Floor where primRoundingMode = "FLOOR"
-instance RoundingMode Ceiling where primRoundingMode = "CEILING"
-instance RoundingMode TowardZero where primRoundingMode = "DOWN"
-instance RoundingMode HalfToEven where primRoundingMode = "HALF_EVEN"
-instance RoundingMode AwayFromZero where primRoundingMode = "UP"
-instance RoundingMode HalfTowardZero where primRoundingMode = "HALF_DOWN"
-instance RoundingMode HalfAwayFromZero where primRoundingMode = "HALF_UP"
+instance RoundingMode Floor where primRoundingMode _ = "FLOOR"
+instance RoundingMode Ceiling where primRoundingMode _ = "CEILING"
+instance RoundingMode TowardZero where primRoundingMode _ = "DOWN"
+instance RoundingMode HalfToEven where primRoundingMode _ = "HALF_EVEN"
+instance RoundingMode AwayFromZero where primRoundingMode _ = "UP"
+instance RoundingMode HalfTowardZero where primRoundingMode _ = "HALF_DOWN"
+instance RoundingMode HalfAwayFromZero where primRoundingMode _ = "HALF_UP"
 
-data BigDecimal r = BigDecimal with
-    bigDec : BigDec
+data BigDecimal r = BigDecimal BigDec
 
-toNumeric : (RoundingMode r, NumericScale n) => BigDecimal r -> Optional Numeric n
-toNumeric d = primitive @"BEBigDecToNumeric" (primRoundingMode d) d.bigDec
+toNumeric : (RoundingMode r, NumericScale n) => BigDecimal r -> Optional (Numeric n)
+toNumeric d@(BigDecimal bigDec) = primitive @"BEBigDecToNumeric" (primRoundingMode d) bigDec
 
 toBigDecimal : forall r n. (RoundingMode r, NumericScale n) => Numeric n -> BigDecimal r
-toBigDecimal n = BigDecimal with bigDec = primitive @"BENumericToBigDec" n
+toBigDecimal n = BigDecimal $ toBigDec n
 
-cast : (RoundingMode r, BigDecimal s) => BigDecimal s -> BigDecimal r
-cast d = BigDecimal d.bigDec
+toBigDec : (NumericScale n) => Numeric n -> BigDec
+toBigDec n = primitive @"BENumericToBigDec" n
+
+cast : (RoundingMode r, RoundingMode s) => BigDecimal s -> BigDecimal r
+cast (BigDecimal bigDec) = BigDecimal bigDec
 
 -- Initial idea of how the implementation of functionality will look.
 -- Sidelined until we have a working end-to-end representation.

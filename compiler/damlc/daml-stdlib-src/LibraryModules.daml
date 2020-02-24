@@ -12,6 +12,7 @@ import DA.Action
 import DA.Action.State
 import DA.Assert
 import DA.Bifunctor
+import DA.BigDecimal
 import DA.Date
 import DA.Either
 import DA.Foldable
