@@ -257,8 +257,8 @@ convertPrim _ "BETextIntercalate" (TText :-> TList TText :-> TText) = EBuiltin B
 -- Proposed BigDecimal support.
 convertPrim _ "BEBigDecToNumeric" (TText :-> TBigDecimal :-> TOptional(TNumeric n)) =
   EBuiltin BEBigDecToNumeric `ETyApp` n
-convertPrim _ "BENumericToBigDec" (TNumeric _ :-> TBigDecimal) =
-  EBuiltin BENumericToBigDec
+convertPrim _ "BENumericToBigDec" (TNumeric n :-> TBigDecimal) =
+  EBuiltin BENumericToBigDec `ETyApp` n
 
 -- Template Desugaring.
 
