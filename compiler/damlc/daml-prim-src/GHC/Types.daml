@@ -198,7 +198,7 @@ data Decimal =
 
 #endif
 
-#ifdef DAML_BIGDECIMAL
+#ifdef DAML_UNSTABLE
 
 data BigDec =
   -- | HIDE
