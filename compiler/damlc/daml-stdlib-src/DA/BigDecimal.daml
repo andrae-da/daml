@@ -16,6 +16,7 @@ module DA.BigDecimal (
   , HalfTowardZero
   , HalfAwayFromZero
   , toNumeric
+  , toBigDecimal
 #endif
 ) where
 
