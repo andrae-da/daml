@@ -1493,14 +1493,10 @@ object SBuiltin {
         case SText(rMode) =>
           args.get(2) match {
             case SBigDecimal(bigDecimal) =>
-              machine.ctrl = CtrlValue(
-                SNumeric(
-                  rightOrArithmeticError(
-                    s"Error while converting (BigDecimal $bigDecimal) to (Numeric $outputScale)",
-                    bigDecimal.toNumeric(outputScale, rMode)
-                  )
-                )
-              )
+              machine.ctrl = bigDecimal.toNumeric(outputScale, rMode) match {
+                case Left(_) => CtrlValue.None
+                case Right(d) => CtrlValue(SOptional(Some(SNumeric(d))))
+              }
             case x => throw SErrorCrash(s"type mismatch SBBigDecToNumeric, expected BigDecimal, got $x")
           }
         case x => throw SErrorCrash(s"type mismatch SBBigDecToNumeric, expected Text, got $x")
@@ -1512,8 +1508,10 @@ object SBuiltin {
     def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
       val inputScale = args.get(0).asInstanceOf[STNat].n
       val input = args.get(1).asInstanceOf[SNumeric].value
-      assert(input.scale == inputScale)
-      machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.fromNumeric(input)))
+      if (input.scale == inputScale)
+        machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.fromNumeric(input)))
+      else
+        crash(s"internal scale: $input.scale does not match expected (Numeric $inputScale)")
     }
   }
 
