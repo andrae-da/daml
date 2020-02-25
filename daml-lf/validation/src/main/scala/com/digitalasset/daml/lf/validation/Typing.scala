@@ -238,9 +238,9 @@ private[validation] object Typing {
       BTextIntercalate -> (TText ->: TList(TText) ->: TText),
 
       BBigDecToNumeric ->
-        TForall(alpha.name -> KNat, TBigDecimal ->: TOptional(TNumeric(alpha))),
+        TForall(alpha.name -> KNat, TText ->: TBigDecimal ->: TOptional(TNumeric(alpha))),
       BNumericToBigDec ->
-        TForall(alpha.name -> KNat, TText ->: TNumeric(alpha) ->: TBigDecimal)
+        TForall(alpha.name -> KNat, TNumeric(alpha) ->: TBigDecimal)
     )
   }
 
