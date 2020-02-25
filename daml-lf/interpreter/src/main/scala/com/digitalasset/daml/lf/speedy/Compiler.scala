@@ -323,6 +323,7 @@ final case class Compiler(packages: PackageId PartialFunction Package) {
 
               case BBigDecToNumeric => SBBigDecToNumeric
               case BNumericToBigDec => SBNumericToBigDec
+              case BToTextBigDec    => SBToTextBigDec
 
               // Implemented using normal SExpr
               case BFoldl | BFoldr | BEqualList | BCoerceContractId | BTextMapEmpty |

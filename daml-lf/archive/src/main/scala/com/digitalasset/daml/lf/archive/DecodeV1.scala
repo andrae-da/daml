@@ -1508,6 +1508,7 @@ private[lf] object DecodeV1 {
 
       BuiltinFunctionInfo(NUMERIC_TO_BIGDEC, BNumericToBigDec, minVersion = unstable),
       BuiltinFunctionInfo(BIGDEC_TO_NUMERIC, BBigDecToNumeric, minVersion = unstable),
+      BuiltinFunctionInfo(TO_TEXT_BIGDEC, BToTextBigDec, minVersion = unstable),
     )
   }
 

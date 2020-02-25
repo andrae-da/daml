@@ -22,6 +22,12 @@ module DA.BigDecimal (
 
 #ifdef DAML_UNSTABLE
 import GHC.Types (BigDec, primitive)
+import GHC.Show ()
+
+data BigDecimal r = BigDecimal BigDec
+
+instance RoundingMode r => Show (BigDecimal r) where
+  show d@(BigDecimal bigDec) = show bigDec <> "/" <> (primRoundingMode d)
 
 -- | Rounding Mode is represented as a type annotation on the BigDecimal type
 class RoundingMode r where
@@ -43,8 +49,6 @@ instance RoundingMode HalfToEven where primRoundingMode _ = "HALF_EVEN"
 instance RoundingMode AwayFromZero where primRoundingMode _ = "UP"
 instance RoundingMode HalfTowardZero where primRoundingMode _ = "HALF_DOWN"
 instance RoundingMode HalfAwayFromZero where primRoundingMode _ = "HALF_UP"
-
-data BigDecimal r = BigDecimal BigDec
 
 toNumeric : (RoundingMode r, NumericScale n) => BigDecimal r -> Optional (Numeric n)
 toNumeric d@(BigDecimal bigDec) = bigDecToNumeric (primRoundingMode d) bigDec

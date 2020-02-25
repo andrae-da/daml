@@ -283,6 +283,7 @@ instance Pretty BuiltinExpr where
     BETextIntercalate -> "TEXT_INTERCALATE"
     BENumericToBigDec -> "NUMERIC_TO_BIGDECIMAL"
     BEBigDecToNumeric -> "BIGDECIMAL_TO_NUMERIC"
+    BEToTextBigDec -> "TO_TEXT_BIGDECIMAL"
 
     where
       epochToText fmt secs =

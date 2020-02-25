@@ -422,6 +422,7 @@ encodeBuiltinExpr = \case
       BTTimestamp -> builtin P.BuiltinFunctionTO_TEXT_TIMESTAMP
       BTDate -> builtin P.BuiltinFunctionTO_TEXT_DATE
       BTParty -> builtin P.BuiltinFunctionTO_TEXT_PARTY
+      BTBigDecimal -> builtin P.BuiltinFunctionTO_TEXT_BIGDEC
       other -> error $ "BEToText unexpected type " <> show other
     BEToTextNumeric -> builtin P.BuiltinFunctionTO_TEXT_NUMERIC
     BETextFromCodePoints -> builtin P.BuiltinFunctionTEXT_FROM_CODE_POINTS
@@ -504,6 +505,7 @@ encodeBuiltinExpr = \case
 
     BENumericToBigDec -> builtin P.BuiltinFunctionNUMERIC_TO_BIGDEC
     BEBigDecToNumeric -> builtin P.BuiltinFunctionBIGDEC_TO_NUMERIC
+    BEToTextBigDec -> builtin P.BuiltinFunctionTO_TEXT_BIGDEC
 
     where
       builtin = pure . P.ExprSumBuiltin . P.Enumerated . Right

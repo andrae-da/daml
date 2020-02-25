@@ -283,6 +283,7 @@ typeOfBuiltin = \case
 
   BENumericToBigDec -> pure $ TForall (alpha, KNat) $ TNumeric tAlpha :-> TBigDecimal
   BEBigDecToNumeric -> pure $ TForall (alpha, KNat) $ TText :-> TBigDecimal :-> TOptional (TNumeric tAlpha)
+  BEToTextBigDec    -> pure $ TForall (alpha, KNat) $ TBigDecimal :-> TText
 
   where
     tComparison btype = TBuiltin btype :-> TBuiltin btype :-> TBool

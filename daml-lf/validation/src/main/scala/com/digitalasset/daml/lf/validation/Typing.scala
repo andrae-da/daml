@@ -240,7 +240,8 @@ private[validation] object Typing {
       BBigDecToNumeric ->
         TForall(alpha.name -> KNat, TText ->: TBigDecimal ->: TOptional(TNumeric(alpha))),
       BNumericToBigDec ->
-        TForall(alpha.name -> KNat, TNumeric(alpha) ->: TBigDecimal)
+        TForall(alpha.name -> KNat, TNumeric(alpha) ->: TBigDecimal),
+      BToTextBigDec -> (TBigDecimal ->: TText)
     )
   }
 

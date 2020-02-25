@@ -1515,6 +1515,16 @@ object SBuiltin {
     }
   }
 
+  final case object SBToTextBigDec extends SBuiltin(1) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(bigDecimal) =>
+          machine.ctrl = CtrlValue(SText(bigDecimal.toString))
+        case x => throw SErrorCrash(s"type mismatch SBToTextBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
   // Helpers
   //
 

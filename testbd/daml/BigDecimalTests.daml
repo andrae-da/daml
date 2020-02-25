@@ -8,7 +8,8 @@ import DA.BigDecimal
 import DA.Optional (fromSome)
 
 testSuite = scenario do
-    testToFromNumeric
+    testToFromNumeric ()
+    testShow ()
 
 convertTowardZero : Numeric n -> BigDecimal TowardZero
 convertTowardZero = toBigDecimal
@@ -34,7 +35,7 @@ convertHalfEven = toBigDecimal
 revert2 : RoundingMode r => BigDecimal r -> Numeric 2
 revert2 = fromSome . toNumeric
 
-testToFromNumeric = scenario do
+testToFromNumeric _ = scenario do
     -- Positive Even Tests
     assert $ 1.24 == (revert2 . convertTowardZero) (1.245 : Numeric 10)
     assert $ 1.25 == (revert2 . convertAwayFromZero) (1.245 : Numeric 10)
@@ -59,3 +60,12 @@ testToFromNumeric = scenario do
 
     -- Round-trip Test
     assert $ 1.24 == (revert2 . convertTowardZero . revert2 . convertTowardZero) (1.245 : Numeric 10)
+
+testShow _ = scenario do
+    assert $ "1.2450/DOWN" == (show . toBigDecimal @TowardZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/UP" == (show . toBigDecimal @AwayFromZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/FLOOR" == (show . toBigDecimal @Floor $ (1.245 : Numeric 4))
+    assert $ "1.2450/CEILING" == (show . toBigDecimal @Ceiling $ (1.245 : Numeric 4))
+    assert $ "1.2450/HALF_DOWN" == (show . toBigDecimal @HalfTowardZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/HALF_UP" == (show . toBigDecimal @HalfAwayFromZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/HALF_EVEN" == (show . toBigDecimal @HalfToEven $ (1.245 : Numeric 4))
