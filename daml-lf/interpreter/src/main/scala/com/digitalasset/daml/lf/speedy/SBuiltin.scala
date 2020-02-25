@@ -1486,6 +1486,37 @@ object SBuiltin {
     }
   }
 
+  final case object SBBigDecToNumeric extends SBuiltin(3) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      val outputScale = args.get(0).asInstanceOf[STNat].n
+      args.get(1) match {
+        case SText(rMode) =>
+          args.get(2) match {
+            case SBigDecimal(bigDecimal) =>
+              machine.ctrl = CtrlValue(
+                SNumeric(
+                  rightOrArithmeticError(
+                    s"Error while converting (BigDecimal $bigDecimal) to (Numeric $outputScale)",
+                    bigDecimal.toNumeric(outputScale, rMode)
+                  )
+                )
+              )
+            case x => throw SErrorCrash(s"type mismatch SBBigDecToNumeric, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBBigDecToNumeric, expected Text, got $x")
+      }
+    }
+  }
+
+  final case object SBNumericToBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      val inputScale = args.get(0).asInstanceOf[STNat].n
+      val input = args.get(1).asInstanceOf[SNumeric].value
+      assert(input.scale == inputScale)
+      machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.fromNumeric(input)))
+    }
+  }
+
   // Helpers
   //
 

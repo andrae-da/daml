@@ -10,9 +10,9 @@ package data
  */
 case class DamlBigDecimal(scalaBigDec: BigDecimal, dbdFlags: Set[DBDFlag]) {
 
-  def toNumeric: Either[String, Numeric] =
+  def toNumeric(scale: Int, rmode: String): Either[String, Numeric] =
     if (dbdFlags contains Invalid) // if already invalid, report it
-      Left("Converting an invalid numeric value")
+      Left(s"Converting an invalid numeric value $scale, $rmode")
     else // if valid, check size
       Numeric.checkForOverflow(scalaBigDec.bigDecimal)
 

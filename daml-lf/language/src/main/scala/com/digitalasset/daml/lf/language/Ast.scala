@@ -442,8 +442,8 @@ object Ast {
   final case object BTextSplitOn extends BuiltinFunction(2) // : Text → Text → List Text
   final case object BTextIntercalate extends BuiltinFunction(2) // : Text → List Text → Text
 
-  final case object BBigDecToNumeric extends BuiltinFunction(2) // : Text -> BigDec -> Optional(Numeric n)
-  final case object BNumericToBigDec extends BuiltinFunction(1) // : Numeric n -> BigDec
+  final case object BBigDecToNumeric extends BuiltinFunction(3) // : Text -> BigDec -> Optional(Numeric n)
+  final case object BNumericToBigDec extends BuiltinFunction(2) // : Numeric n -> BigDec
 
   //
   // Update expressions
