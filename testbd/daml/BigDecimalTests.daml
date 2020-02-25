@@ -1,0 +1,61 @@
+-- Copyright (c) 2020 The DAML Authors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+
+daml 1.2
+module BigDecimalTests where
+
+import DA.BigDecimal
+import DA.Optional (fromSome)
+
+testSuite = scenario do
+    testToFromNumeric
+
+convertTowardZero : Numeric n -> BigDecimal TowardZero
+convertTowardZero = toBigDecimal
+
+convertAwayFromZero : Numeric n -> BigDecimal AwayFromZero
+convertAwayFromZero = toBigDecimal
+
+convertFloor : Numeric n -> BigDecimal Floor
+convertFloor = toBigDecimal
+
+convertCeiling : Numeric n -> BigDecimal Ceiling
+convertCeiling = toBigDecimal
+
+convertHalfAwayFromZero : Numeric n -> BigDecimal HalfAwayFromZero
+convertHalfAwayFromZero = toBigDecimal
+
+convertHalfTowardZero : Numeric n -> BigDecimal HalfTowardZero
+convertHalfTowardZero = toBigDecimal
+
+convertHalfEven : Numeric n -> BigDecimal HalfToEven
+convertHalfEven = toBigDecimal
+
+revert2 : RoundingMode r => BigDecimal r -> Numeric 2
+revert2 = fromSome . toNumeric
+
+testToFromNumeric = scenario do
+    -- Positive Even Tests
+    assert $ 1.24 == (revert2 . convertTowardZero) (1.245 : Numeric 10)
+    assert $ 1.25 == (revert2 . convertAwayFromZero) (1.245 : Numeric 10)
+    assert $ 1.24 == (revert2 . convertFloor) (1.245 : Numeric 10)
+    assert $ 1.25 == (revert2 . convertCeiling) (1.245 : Numeric 10)
+    assert $ 1.24 == (revert2 . convertHalfTowardZero) (1.245 : Numeric 10)
+    assert $ 1.25 == (revert2 . convertHalfAwayFromZero) (1.245 : Numeric 10)
+    assert $ 1.24 == (revert2 . convertHalfEven) (1.245 : Numeric 10)
+
+    -- Negative Even Tests
+    assert $ -1.24 == (revert2 . convertTowardZero) (-1.245 : Numeric 10)
+    assert $ -1.25 == (revert2 . convertAwayFromZero) (-1.245 : Numeric 10)
+    assert $ -1.25 == (revert2 . convertFloor) (-1.245 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertCeiling) (-1.245 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertHalfTowardZero) (-1.245 : Numeric 10)
+    assert $ -1.25 == (revert2 . convertHalfAwayFromZero) (-1.245 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertHalfEven) (-1.245 : Numeric 10)
+
+    -- Odd Tests
+    assert $ 1.24 == (revert2 . convertHalfEven) (1.235 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertHalfEven) (-1.235 : Numeric 10)
+
+    -- Round-trip Test
+    assert $ 1.24 == (revert2 . convertTowardZero . revert2 . convertTowardZero) (1.245 : Numeric 10)

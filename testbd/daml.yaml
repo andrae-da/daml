@@ -1,0 +1,12 @@
+sdk-version: 0.0.0
+build-options: [ --target, 1.dev ]
+name: testbd
+source: daml
+scenario: BigDecimalTests:testSuite
+parties:
+  - Alice
+  - Bob
+version: 0.0.1
+dependencies:
+  - daml-prim
+  - daml-stdlib
