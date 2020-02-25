@@ -276,6 +276,7 @@ object Ast {
 
   case object BTInt64 extends BuiltinType
   case object BTNumeric extends BuiltinType
+  case object BTBigDecimal extends BuiltinType
   case object BTText extends BuiltinType
   case object BTTimestamp extends BuiltinType
   case object BTParty extends BuiltinType
@@ -440,6 +441,9 @@ object Ast {
   final case object BTextReplicate extends BuiltinFunction(2) // : Int64 → Text → Text
   final case object BTextSplitOn extends BuiltinFunction(2) // : Text → Text → List Text
   final case object BTextIntercalate extends BuiltinFunction(2) // : Text → List Text → Text
+
+  final case object BBigDecToNumeric extends BuiltinFunction(2) // : Text -> BigDec -> Optional(Numeric n)
+  final case object BNumericToBigDec extends BuiltinFunction(1) // : Numeric n -> BigDec
 
   //
   // Update expressions

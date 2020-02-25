@@ -24,7 +24,8 @@ private[validation] object Typing {
   }
 
   private def kindOfBuiltin(bType: BuiltinType): Kind = bType match {
-    case BTInt64 | BTText | BTTimestamp | BTParty | BTBool | BTDate | BTUnit | BTAny | BTTypeRep =>
+    case BTInt64 | BTText | BTTimestamp | BTParty | BTBool | BTDate |
+         BTUnit | BTAny | BTTypeRep | BTBigDecimal =>
       KStar
     case BTNumeric => KArrow(KNat, KStar)
     case BTList | BTUpdate | BTScenario | BTContractId | BTOptional | BTTextMap =>
@@ -235,6 +236,11 @@ private[validation] object Typing {
       BTextReplicate -> (TInt64 ->: TText ->: TText),
       BTextSplitOn -> (TText ->: TText ->: TList(TText)),
       BTextIntercalate -> (TText ->: TList(TText) ->: TText),
+
+      BBigDecToNumeric ->
+        TForall(alpha.name -> KNat, TBigDecimal ->: TOptional(TNumeric(alpha))),
+      BNumericToBigDec ->
+        TForall(alpha.name -> KNat, TText ->: TNumeric(alpha) ->: TBigDecimal)
     )
   }
 

@@ -1272,6 +1272,7 @@ private[lf] object DecodeV1 {
       BuiltinTypeInfo(GENMAP, BTGenMap, minVersion = genMap),
       BuiltinTypeInfo(ARROW, BTArrow, minVersion = arrowType),
       BuiltinTypeInfo(NUMERIC, BTNumeric, minVersion = numeric),
+      BuiltinTypeInfo(BIGDECIMAL, BTBigDecimal, minVersion = unstable),
       BuiltinTypeInfo(ANY, BTAny, minVersion = anyType),
       BuiltinTypeInfo(TYPE_REP, BTTypeRep, minVersion = typeRep)
     )
@@ -1503,7 +1504,10 @@ private[lf] object DecodeV1 {
       BuiltinFunctionInfo(TEXT_CONTAINS_ONLY, BTextContainsOnly, minVersion = unstable),
       BuiltinFunctionInfo(TEXT_REPLICATE, BTextReplicate, minVersion = unstable),
       BuiltinFunctionInfo(TEXT_SPLIT_ON, BTextSplitOn, minVersion = unstable),
-      BuiltinFunctionInfo(TEXT_INTERCALATE, BTextIntercalate, minVersion = unstable)
+      BuiltinFunctionInfo(TEXT_INTERCALATE, BTextIntercalate, minVersion = unstable),
+
+      BuiltinFunctionInfo(NUMERIC_TO_BIGDEC, BNumericToBigDec, minVersion = unstable),
+      BuiltinFunctionInfo(BIGDEC_TO_NUMERIC, BBigDecToNumeric, minVersion = unstable),
     )
   }
 
