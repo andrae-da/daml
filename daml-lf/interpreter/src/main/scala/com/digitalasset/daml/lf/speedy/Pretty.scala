@@ -374,7 +374,7 @@ object Pretty {
       case ValueInt64(i) => str(i)
       case ValueNumeric(d) => str(d)
       case ValueBigDecimal(d) =>
-        if (verbose) str(s"BigDecimal(${d.scalaBigDec}, ${d.dbdFlags})")
+        if (verbose) str(s"BigDecimal(${d.bigDecimal}, ${d.dbdFlags})")
         else str(d.toString)
       case ValueRecord(mbId, fs) =>
         (mbId match {
