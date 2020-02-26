@@ -321,9 +321,12 @@ final case class Compiler(packages: PackageId PartialFunction Package) {
               case BTextSplitOn => SBTextSplitOn
               case BTextIntercalate => SBTextIntercalate
 
+              // Unstable BigDecimal Primitives
               case BBigDecToNumeric => SBBigDecToNumeric
               case BNumericToBigDec => SBNumericToBigDec
               case BToTextBigDec    => SBToTextBigDec
+              case BAddBigDec       => SBAddBigDec
+              case BSubBigDec       => SBSubBigDec
 
               // Implemented using normal SExpr
               case BFoldl | BFoldr | BEqualList | BCoerceContractId | BTextMapEmpty |

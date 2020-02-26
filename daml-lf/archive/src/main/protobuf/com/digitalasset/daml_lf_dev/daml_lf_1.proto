@@ -564,6 +564,8 @@ enum BuiltinFunction {
   BIGDEC_TO_NUMERIC = 9910; // *Available in versions >= 1.dev*
   NUMERIC_TO_BIGDEC = 9911; // *Available in versions >= 1.dev*
   TO_TEXT_BIGDEC    = 9912; // *Available in versions >= 1.dev*
+  ADD_BIGDEC        = 9913; // *Available in versions >= 1.dev*
+  SUB_BIGDEC        = 9914; // *Available in versions >= 1.dev*
 }
 
 // Builtin literals

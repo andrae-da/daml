@@ -241,7 +241,9 @@ private[validation] object Typing {
         TForall(alpha.name -> KNat, TText ->: TBigDecimal ->: TOptional(TNumeric(alpha))),
       BNumericToBigDec ->
         TForall(alpha.name -> KNat, TNumeric(alpha) ->: TBigDecimal),
-      BToTextBigDec -> (TBigDecimal ->: TText)
+      BToTextBigDec -> (TBigDecimal ->: TText),
+      BAddBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal),
+      BSubBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal)
     )
   }
 

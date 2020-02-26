@@ -321,7 +321,9 @@ data BuiltinExpr
   -- BigDecimal operations
   | BENumericToBigDec            -- :: Numeric n -> BigDecimal
   | BEBigDecToNumeric            -- :: Text -> BigDecimal -> Optional (Numeric n)
-  | BEToTextBigDec               -- :: ∀(s:nat). BigDecimal -> Text
+  | BEToTextBigDec               -- :: BigDecimal -> Text
+  | BEAddBigDec                  -- :: BigDecimal -> BigDecimal -> BigDecimal
+  | BESubBigDec                  -- :: BigDecimal -> BigDecimal -> BigDecimal
   deriving (Eq, Data, Generic, NFData, Ord, Show)
 
 

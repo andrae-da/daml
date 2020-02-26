@@ -71,11 +71,6 @@ cast (BigDecimal bigDec) = BigDecimal bigDec
 --castAndRound : (RoundingMode r, BigDecimal s) => Int -> BigDecimal s -> BigDecimal r
 --castAndRound p d = primitive @"BEDivBigDec" p (primRoundingMode d) d.bigDec munit
 --
---instance RoundingMode r => Additive (BigDecimal r) where
---    (+) = add
---    (-) = subtract
---    negate a = aunit - a
---    aunit = toBigDecimal @0 0.0
 --
 --instance RoundingMode r => Multiplicative (BigDecimal r) where
 --    (*) = multiply
@@ -92,13 +87,13 @@ cast (BigDecimal bigDec) = BigDecimal bigDec
 --    abs d = if primitive @"BELEBigDec" aunit d
 --            then d
 --            else negate d
---
---add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
---add a b = primitive @"BEAddBigDec" a.bigDec b.bigDec
---
---add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
---add a b = primitive @"BESubBigDec" a.bigDec b.bigDec
---
+
+add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+add (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEAddBigDec" a b
+
+sub : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+sub (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BESubBigDec" a b
+
 --mul : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
 --mul a b = primitive @"BEMulBigDec" a.bigDec b.bigDec
 --
@@ -107,5 +102,11 @@ cast (BigDecimal bigDec) = BigDecimal bigDec
 --
 --pow : forall r s t. (RoundingMode r, RoundingMode s) => BigDecimal s -> Int -> BigDecimal r
 --pow a b = primitive @"BEPowBigDec" a.bigDec b.bigDec
+
+instance RoundingMode r => Additive (BigDecimal r) where
+    (+) = add
+    (-) = sub
+    negate a = aunit - a
+    aunit = toBigDecimal (0.0 : Numeric 0)
 
 #endif

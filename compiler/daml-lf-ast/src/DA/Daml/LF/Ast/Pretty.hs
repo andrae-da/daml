@@ -284,6 +284,8 @@ instance Pretty BuiltinExpr where
     BENumericToBigDec -> "NUMERIC_TO_BIGDECIMAL"
     BEBigDecToNumeric -> "BIGDECIMAL_TO_NUMERIC"
     BEToTextBigDec -> "TO_TEXT_BIGDECIMAL"
+    BEAddBigDec -> "ADD_BIGDECIMAL"
+    BESubBigDec -> "SUB_BIGDECIMAL"
 
     where
       epochToText fmt secs =

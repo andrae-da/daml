@@ -9,6 +9,7 @@ import DA.Optional (fromSome)
 
 testSuite = scenario do
     testToFromNumeric ()
+    testAdditive ()
     testShow ()
 
 convertTowardZero : Numeric n -> BigDecimal TowardZero
@@ -60,6 +61,21 @@ testToFromNumeric _ = scenario do
 
     -- Round-trip Test
     assert $ 1.24 == (revert2 . convertTowardZero . revert2 . convertTowardZero) (1.245 : Numeric 10)
+
+testAdditive _ = scenario do
+    let a : BigDecimal Floor = toBigDecimal (1.14 : Numeric 2)
+        b : BigDecimal Floor = toBigDecimal (0.205 : Numeric 3)
+    assert $ (1.345 : Numeric 3) == fromSome (toNumeric $ a + b)
+    assert $ (1.345 : Numeric 3) == fromSome (toNumeric $ b + a)
+    assert $ (0.935 : Numeric 3) == fromSome (toNumeric $ a - b)
+    assert $ (-0.935 : Numeric 3) == fromSome (toNumeric $ b - a)
+    assert $ (0.935 : Numeric 3) == fromSome (toNumeric $ a + negate b)
+    assert $ (-0.935 : Numeric 3) == fromSome (toNumeric $ b + negate a)
+    assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ a + aunit)
+    assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ aunit + a + aunit)
+    assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ a - aunit)
+    assert $ (-1.14 : Numeric 3) == fromSome (toNumeric $ aunit - a - aunit)
+    pure ()
 
 testShow _ = scenario do
     assert $ "1.2450/DOWN" == (show . toBigDecimal @TowardZero $ (1.245 : Numeric 4))

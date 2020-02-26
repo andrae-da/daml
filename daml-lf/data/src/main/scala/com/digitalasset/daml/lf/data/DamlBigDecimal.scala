@@ -27,6 +27,22 @@ case class DamlBigDecimal(bigDecimal: JBigDec, dbdFlags: Set[DBDFlag]) {
 object DamlBigDecimal {
   def fromNumeric(x: Numeric): DamlBigDecimal = DamlBigDecimal(x, Set.empty)
 
+  def add(addend: DamlBigDecimal, augend: DamlBigDecimal): DamlBigDecimal = {
+    val newFlags = addend.dbdFlags union augend.dbdFlags
+    if (newFlags contains Invalid)
+      DamlBigDecimal(JBigDec.ONE, newFlags)
+    else
+      DamlBigDecimal(addend.bigDecimal.add(augend.bigDecimal), newFlags)
+  }
+
+  def subtract(minuend: DamlBigDecimal, subtrahend: DamlBigDecimal): DamlBigDecimal = {
+    val newFlags = minuend.dbdFlags union subtrahend.dbdFlags
+    if (newFlags contains Invalid)
+      DamlBigDecimal(JBigDec.ONE, newFlags)
+    else
+      DamlBigDecimal(minuend.bigDecimal.subtract(subtrahend.bigDecimal), newFlags)
+  }
+
   val zero: DamlBigDecimal = DamlBigDecimal(JBigDec.ZERO, Set.empty)
 
   val one: DamlBigDecimal = DamlBigDecimal(JBigDec.ONE, Set.empty)

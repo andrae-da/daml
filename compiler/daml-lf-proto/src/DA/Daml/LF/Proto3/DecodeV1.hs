@@ -435,6 +435,8 @@ decodeBuiltinFunction = pure . \case
   LF1.BuiltinFunctionBIGDEC_TO_NUMERIC -> BEBigDecToNumeric
   LF1.BuiltinFunctionNUMERIC_TO_BIGDEC -> BENumericToBigDec
   LF1.BuiltinFunctionTO_TEXT_BIGDEC    -> BEToTextBigDec
+  LF1.BuiltinFunctionADD_BIGDEC        -> BEAddBigDec
+  LF1.BuiltinFunctionSUB_BIGDEC        -> BESubBigDec
 
 
 

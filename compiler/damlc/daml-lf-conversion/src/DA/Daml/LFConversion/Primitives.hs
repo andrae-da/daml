@@ -260,7 +260,11 @@ convertPrim _ "BEBigDecToNumeric" (TText :-> TBigDecimal :-> TOptional(TNumeric 
 convertPrim _ "BENumericToBigDec" (TNumeric n :-> TBigDecimal) =
   EBuiltin BENumericToBigDec `ETyApp` n
 convertPrim _ "BEToText" (TBigDecimal :-> TText) =
-    EBuiltin BEToTextNumeric
+    EBuiltin BEToTextBigDec
+convertPrim _ "BEAddBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BEAddBigDec
+convertPrim _ "BESubBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BESubBigDec
 
 -- Template Desugaring.
 

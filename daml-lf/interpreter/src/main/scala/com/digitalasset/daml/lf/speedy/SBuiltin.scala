@@ -1525,6 +1525,34 @@ object SBuiltin {
     }
   }
 
+  final case object SBAddBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(addend) =>
+          args.get(1) match {
+            case SBigDecimal(augend) =>
+              machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.add(addend, augend)))
+            case x => throw SErrorCrash(s"type mismatch SBAddBigDec, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBAddBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
+  final case object SBSubBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(minuend) =>
+          args.get(1) match {
+            case SBigDecimal(subtrahend) =>
+              machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.subtract(minuend, subtrahend)))
+            case x => throw SErrorCrash(s"type mismatch SBSubBigDec, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBSubBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
   // Helpers
   //
 
