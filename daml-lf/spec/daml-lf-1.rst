@@ -283,6 +283,8 @@ Version: 1.dev
 
   + **Add** type synonyms.
 
+  + **Add** `'BigDecimal'` type and operations
+
 Abstract syntax
 ^^^^^^^^^^^^^^^
 
@@ -574,6 +576,7 @@ Then we can define our kinds, types, and expressions::
       ::= 'TArrow'                                  -- BTArrow: Arrow type
        |  'Int64'                                   -- BTyInt64: 64-bit integer
        |  'Numeric'                                 -- BTyNumeric: numeric, precision 38, parametric scale between 0 and 37
+       |  'BigDecimal'                              -- BTyBigDecimal: arbitrary precision decimal carrying a set of flags, not serializable
        |  'Text'                                    -- BTyText: UTF-8 string
        |  'Date'                                    -- BTyDate
        |  'Timestamp'                               -- BTyTime: UTC timestamp
@@ -878,6 +881,9 @@ We now formally defined *well-formed types*. ::
 
     ————————————————————————————————————————————— TyNumeric
       Γ  ⊢  'Numeric' : 'nat' → ⋆
+
+    ————————————————————————————————————————————— TyBigDecimal
+      Γ  ⊢  'BigDecimal' : ⋆
 
     ————————————————————————————————————————————— TyText
       Γ  ⊢  'Text' : ⋆
@@ -1297,7 +1303,8 @@ Note that
 1. Structs are *not* serializable.
 2. Type synonyms are *not* serializable.
 3. Uninhabited variant and enum types are *not* serializable.
-4. For a data type to be serializable, *all* type
+4. The `BigDecimal` type is *not* serializable.
+5. For a data type to be serializable, *all* type
    parameters must be instantiated with serializable types, even
    phantom ones.
 
@@ -1692,6 +1699,9 @@ need to be evaluated further. ::
      ⊢ᵥ  'embed_expr' @τ e
 
 
+.. note:: No `'BigDecimal'` literals
+   There are `BigDecimal` values, but no `BigDecimal` literals.
+     
 Note that the argument of an embedded expression does not need to be a
 value for the whole to be so.  In the following, we will use the
 symbol ``v`` or ``w`` to represent an expression which is a value.
@@ -1856,6 +1866,10 @@ will always be used to compare values of same types::
 .. note:: the equality of generic map is not sensitive to the order of
           its entries. See rules ``'GenEqNonEmptyGenMap'``.
 
+.. note:: Equality of `BigDecimal`
+          Equality of `BigDecimal` values is defined via the built-in
+          `compare` primitive comparing two `BigDecimal` values.
+
 Value order
 ~~~~~~~~~~~
 
@@ -1989,6 +2003,11 @@ It is a total order when comparing serialized values of the same type.
 
 .. note: In the above rules, map entries for TextMap and GenMap are ordered
    by key. The rules make this assumption explicit.
+
+.. note::  Comparisons of `BigDecimal`
+           Comparisons of `BigDecimal` values are defined via the built-in
+          `compare` primitive comparing two `BigDecimal` values.
+
 
 Expression evaluation
 ~~~~~~~~~~~~~~~~~~~~~
@@ -2678,6 +2697,92 @@ Numeric functions
   `α`.
 
   [*Available in versions >= 1.5*]
+
+
+BigDecimal functions
+~~~~~~~~~~~~~~~~~~~~
+
+[*Available in versions >= 1.dev*]
+
+.. TODO:: Describe the validity flag(s) in some detail.
+  
+* ``NUMERIC_TO_BIGDEC : ∀ (α : nat) . 'Numeric' α → 'BigDecimal'``
+
+  Converts a given `'Numeric' α` value to a valid `BigDecimal` of the same
+  value. There is no literal form of a `BigDecimal` value, so this is the only
+  introduction form of `BigDecimal`.
+
+* ``BIGDEC_TO_NUMERIC : ∀ (α : nat) . 'Text' → 'BigDecimal' → 'Optional' ('Numeric' α)``
+
+  Given a rounding mode represented as `'Text'` and a `'BigDecimal'` value,
+  attempt to yield a `'Numeric α'` whose value is that of the `'BigDecimal'`
+  rounded using the given rounding mode. Returns `'None'` if
+  - the rounded value of the `'BigDecimal'` would be outside the range of
+  `'Numeric' α` (i.e., its absolute value is greater or equal to 10^{38 - α};
+  - or if the `'BigDecimal'` is invalid.
+
+  The `'Text'` argument must be a valid rounding mode, i.e., one of `"FLOOR",
+  "CEILING", "DOWN", "HALF_EVEN", "UP", "HALF_DOWN", "HALF_UP"`, and rounding
+  is performed as exemplified in the following table.
+
+  **Rounding Modes by example:**
+
+  +-------------+-----+------+-----+------+-----+------+-----+------+
+  | Mode        | 1.1 | -1.1 | 1.5 | -1.5 | 1.6 | -1.6 | 2.5 | -2.5 |
+  +=============+=====+======+=====+======+=====+======+=====+======+
+  | `FLOOR`     |  1  |  -2  |  1  |  -2  |  1  |  -2  |  2  |  -3  |
+  | `CEILING`   |  2  |  -1  |  2  |  -1  |  2  |  -1  |  3  |  -2  |
+  | `DOWN`      |  1  |  -1  |  1  |  -1  |  1  |  -1  |  2  |  -2  |
+  | `HALF_EVEN` |  1  |  -1  |  2  |  -2  |  1  |  -1  |  2  |  -2  |
+  | `UP`        |  2  |  -2  |  2  |  -2  |  2  |  -2  |  3  |  -3  |
+  | `HALF_DOWN` |  1  |  -1  |  1  |  -1  |  2  |  -2  |  2  |  -2  |
+  | `HALF_UP`   |  1  |  -1  |  2  |  -2  |  2  |  -2  |  3  |  -3  |
+  +-------------+-----+------+-----+------+-----+------+-----+------+
+
+* ``TO_TEXT_BIGDEC : 'BigDecimal' → 'Text'``
+
+  Given a `'BigDecimal'` `v`, returns a string representation of its value, or
+  `"<invalid>"` if `v` is invalid.
+
+* ``ADD_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
+
+  Given two `'BigDecimal'` values `v₁` and `v₂`, yield `v₁ + v₂` if both are
+  valid, or an invalid value of `0` if at least one of the operands is invalid.
+  
+* ``SUB_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
+
+  Given two `'BigDecimal'` values `v₁` and `v₂`, yield `v₁ - v₂` if both are
+  valid, or an invalid value of `0` if at least one of the operands is invalid.
+
+* ``MUL_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
+
+  Given two `'BigDecimal'` values `v₁` and `v₂`, yield `v₁ · v₂` if both are
+  valid, or an invalid value of `0` if at least one of the operands is invalid.
+
+* ``COMPARE_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'Int64'``
+
+  Given two `'BigDecimal'` values `v₁` and `v₂`, yield an `'Int64`' between
+  `-1` and `1` indicating the comparison between `v₁` and `v₂`, according to
+  the following semantics:
+  
+  +---------+---------+------------------------+
+  |  `v₁`   | `v₂`    | `COMPARE_BIGDEC v₁ v₂` |
+  +=========+=========+========================+
+  | invalid | invalid |            0           |
+  | invalid | valid   |           -1           |
+  | valid   | invalid |            1           |
+  +---------+---------+------------------------+
+
+  +--------------------+------------------------+
+  |  `v₁,`v₂` valid    | `COMPARE_BIGDEC v₁ v₂` |
+  +====================+========================+
+  |     `v₁ <  v₂`     |           -1           |
+  |     `v₁ == v₂`     |            0           |
+  |     `v₁ >  v₂`     |            1           |
+  +--------------------+------------------------+
+
+  This primitive is used to implement equality and ordering on `'BigDecimal'`.
+
 
 String functions
 ~~~~~~~~~~~~~~~~
