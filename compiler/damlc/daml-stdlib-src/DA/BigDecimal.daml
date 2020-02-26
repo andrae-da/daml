@@ -2,6 +2,7 @@
 -- SPDX-License-Identifier: Apache-2.0
 
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeApplications #-}
 
 daml 1.2
 module DA.BigDecimal (
@@ -17,6 +18,10 @@ module DA.BigDecimal (
   , HalfAwayFromZero
   , toNumeric
   , toBigDecimal
+  , cast
+  , compareBigDecimal
+  , add
+  , sub
 #endif
 ) where
 
@@ -24,7 +29,7 @@ module DA.BigDecimal (
 import GHC.Types (BigDec, primitive)
 import GHC.Show ()
 
-data BigDecimal r = BigDecimal BigDec
+data BigDecimal r = BigDecimal BigDec deriving (Eq, Ord)
 
 instance RoundingMode r => Show (BigDecimal r) where
   show d@(BigDecimal bigDec) = show bigDec <> "/" <> (primRoundingMode d)
@@ -65,11 +70,18 @@ toBigDec = primitive @"BENumericToBigDec"
 cast : (RoundingMode r, RoundingMode s) => BigDecimal s -> BigDecimal r
 cast (BigDecimal bigDec) = BigDecimal bigDec
 
+compareBigDecimal : (RoundingMode r, RoundingMode s) => BigDecimal r -> BigDecimal s -> Ordering
+compareBigDecimal (BigDecimal a) (BigDecimal b) =
+    case primitive @"BECompareBigDec" a b of
+        1  -> GT
+        0  -> EQ
+        -1 -> LT
+
 -- Initial idea of how the implementation of functionality will look.
 -- Sidelined until we have a working end-to-end representation.
 --
---castAndRound : (RoundingMode r, BigDecimal s) => Int -> BigDecimal s -> BigDecimal r
---castAndRound p d = primitive @"BEDivBigDec" p (primRoundingMode d) d.bigDec munit
+--round : RoundingMode r => Int -> BigDecimal r -> BigDecimal r
+--round p d = primitive @"BEDivBigDec" p (primRoundingMode d) d.bigDec munit
 --
 --
 --instance RoundingMode r => Multiplicative (BigDecimal r) where
@@ -77,16 +89,6 @@ cast (BigDecimal bigDec) = BigDecimal bigDec
 --    a ^ b = primitive
 --    munit = toBigDecimal @0 1.0
 --
---instance RoundingMode r => Signed (BigDecimal r) where
---    signum d = if not primitive @"BELEBigDec" d.bigDec aunit
---               then negate munit
---               else if not primitive @"BELEBigDec" aunit d.bigDec
---               then munit
---               else aunit
---
---    abs d = if primitive @"BELEBigDec" aunit d
---            then d
---            else negate d
 
 add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
 add (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEAddBigDec" a b
@@ -108,5 +110,22 @@ instance RoundingMode r => Additive (BigDecimal r) where
     (-) = sub
     negate a = aunit - a
     aunit = toBigDecimal (0.0 : Numeric 0)
+
+instance RoundingMode r => Signed (BigDecimal r) where
+    signum (BigDecimal bd) =
+      let (BigDecimal zero) = toBigDecimal @r (0.0 : Numeric 0)
+      in case primitive @"BECompareBigDec" bd zero of
+          1  -> toBigDecimal @r (1.0 : Numeric 0)
+          0  -> BigDecimal @r zero
+          -1 -> toBigDecimal @r (-1.0 : Numeric 0)
+          x  -> error $ "invalid value returned from primitive compare BigDecimal in signum: " <> show x
+
+    abs d@(BigDecimal bd) =
+      let (BigDecimal zero) = toBigDecimal @r (0.0 : Numeric 0)
+      in case primitive @"BECompareBigDec" bd zero of
+          1  -> d
+          0  -> d
+          -1 -> negate d
+          x  -> error $ "invalid value returned from primitive compare BigDecimal in abs: " <> show x
 
 #endif

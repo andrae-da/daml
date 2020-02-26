@@ -197,6 +197,7 @@ safetyStep = \case
       BEToTextBigDec -> Safe 1
       BEAddBigDec -> Safe 1
       BESubBigDec -> Safe 1
+      BECompareBigDec -> Safe 1
 
   ERecConF _ fs -> minimum (Safe 0 : map snd fs)
   ERecProjF _ _ s -> s `min` Safe 0

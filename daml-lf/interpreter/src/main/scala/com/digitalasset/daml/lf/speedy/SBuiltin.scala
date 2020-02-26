@@ -1553,6 +1553,20 @@ object SBuiltin {
     }
   }
 
+  final case object SBCompareBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(lhs) =>
+          args.get(1) match {
+            case SBigDecimal(rhs) =>
+              machine.ctrl = CtrlValue(SInt64(DamlBigDecimal.compare(lhs, rhs).toLong))
+            case x => throw SErrorCrash(s"type mismatch SBCompareBigDec, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBCompareBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
   // Helpers
   //
 

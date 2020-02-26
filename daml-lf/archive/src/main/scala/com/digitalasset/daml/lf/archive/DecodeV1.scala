@@ -1511,6 +1511,7 @@ private[lf] object DecodeV1 {
       BuiltinFunctionInfo(TO_TEXT_BIGDEC, BToTextBigDec, minVersion = unstable),
       BuiltinFunctionInfo(ADD_BIGDEC, BAddBigDec, minVersion = unstable),
       BuiltinFunctionInfo(SUB_BIGDEC, BSubBigDec, minVersion = unstable),
+      BuiltinFunctionInfo(COMPARE_BIGDEC, BCompareBigDec, minVersion = unstable),
     )
   }
 

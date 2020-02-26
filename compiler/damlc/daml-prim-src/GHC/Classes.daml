@@ -211,6 +211,11 @@ instance Eq Decimal where
 instance Eq Text where
     (==) = primitive @"BEEqual"
 
+#ifdef DAML_UNSTABLE
+instance Eq BigDec where
+    a == b = (primitive @"BECompareBigDec" a b) == 0
+#endif
+
 -- | The `Ord` class is used for totally ordered datatypes.
 --
 -- Instances of `Ord` can be derived for any user-defined datatype whose
@@ -337,6 +342,14 @@ instance Ord Decimal where
     (<=) = primitive @"BELessEq"
     (>=) = primitive @"BEGreaterEq"
     (>)  = primitive @"BEGreater"
+#endif
+
+#ifdef DAML_UNSTABLE
+instance Ord BigDec where
+    a <  b = (primitive @"BECompareBigDec" a b) <  0
+    a <= b = (primitive @"BECompareBigDec" a b) <= 0
+    a >= b = (primitive @"BECompareBigDec" a b) >= 0
+    a >  b = (primitive @"BECompareBigDec" a b) >  0
 #endif
 
 instance Ord Text where

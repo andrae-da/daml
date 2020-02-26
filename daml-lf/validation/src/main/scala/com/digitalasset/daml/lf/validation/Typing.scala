@@ -243,7 +243,8 @@ private[validation] object Typing {
         TForall(alpha.name -> KNat, TNumeric(alpha) ->: TBigDecimal),
       BToTextBigDec -> (TBigDecimal ->: TText),
       BAddBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal),
-      BSubBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal)
+      BSubBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal),
+      BCompareBigDec -> (TBigDecimal ->: TBigDecimal ->: TInt64),
     )
   }
 

@@ -286,6 +286,7 @@ instance Pretty BuiltinExpr where
     BEToTextBigDec -> "TO_TEXT_BIGDECIMAL"
     BEAddBigDec -> "ADD_BIGDECIMAL"
     BESubBigDec -> "SUB_BIGDECIMAL"
+    BECompareBigDec -> "COMPARE_BIGDECIMAL"
 
     where
       epochToText fmt secs =

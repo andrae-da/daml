@@ -324,6 +324,7 @@ data BuiltinExpr
   | BEToTextBigDec               -- :: BigDecimal -> Text
   | BEAddBigDec                  -- :: BigDecimal -> BigDecimal -> BigDecimal
   | BESubBigDec                  -- :: BigDecimal -> BigDecimal -> BigDecimal
+  | BECompareBigDec              -- :: BigDecimal -> BigDecimal -> Int
   deriving (Eq, Data, Generic, NFData, Ord, Show)
 
 

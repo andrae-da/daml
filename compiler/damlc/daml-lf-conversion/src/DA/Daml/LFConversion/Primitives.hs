@@ -265,6 +265,8 @@ convertPrim _ "BEAddBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
     EBuiltin BEAddBigDec
 convertPrim _ "BESubBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
     EBuiltin BESubBigDec
+convertPrim _ "BECompareBigDec" (TBigDecimal :-> TBigDecimal :-> TInt64) =
+    EBuiltin BECompareBigDec
 
 -- Template Desugaring.
 

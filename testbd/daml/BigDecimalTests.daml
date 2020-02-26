@@ -10,6 +10,8 @@ import DA.Optional (fromSome)
 testSuite = scenario do
     testToFromNumeric ()
     testAdditive ()
+    testEq ()
+    testOrd ()
     testShow ()
 
 convertTowardZero : Numeric n -> BigDecimal TowardZero
@@ -85,3 +87,36 @@ testShow _ = scenario do
     assert $ "1.2450/HALF_DOWN" == (show . toBigDecimal @HalfTowardZero $ (1.245 : Numeric 4))
     assert $ "1.2450/HALF_UP" == (show . toBigDecimal @HalfAwayFromZero $ (1.245 : Numeric 4))
     assert $ "1.2450/HALF_EVEN" == (show . toBigDecimal @HalfToEven $ (1.245 : Numeric 4))
+
+testEq _ = scenario do
+    assert $ toBigDecimal @Floor (1.123 : Numeric 3) == toBigDecimal @Floor (1.1230000 : Numeric 7)
+    assert $ toBigDecimal @Floor (1.123 : Numeric 3) == cast (toBigDecimal @TowardZero (1.1230000 : Numeric 7))
+    assert $ toBigDecimal @Floor (1.125 : Numeric 3) /= toBigDecimal @Floor (1.1230000 : Numeric 7)
+    assert $ toBigDecimal @Floor (1.125 : Numeric 3) /= cast (toBigDecimal @TowardZero (1.1230000 : Numeric 7))
+
+testOrd _ = scenario do
+    let a : BigDecimal Floor = toBigDecimal (1.14 : Numeric 2)
+        b : BigDecimal Floor = toBigDecimal (0.205 : Numeric 3)
+        c : BigDecimal TowardZero = toBigDecimal (-1.205 : Numeric 3)
+    assert $ compareBigDecimal a a == EQ
+    assert $ compareBigDecimal a b == GT
+    assert $ compareBigDecimal b a == LT
+    assert $ compareBigDecimal b b == EQ
+    assert $ compareBigDecimal a c == GT
+    assert $ compareBigDecimal c a == LT
+    assert $ compareBigDecimal b c == GT
+    assert $ compareBigDecimal c b == LT
+    assert $ a == a
+    assert $ a > b
+    assert $ a >= b
+    assert $ b <= a
+    assert $ b < a
+    assert $ a > cast c
+    assert $ a >= cast c
+    assert $ cast c <= a
+    assert $ cast c < a
+    assert $ cast a > c
+    assert $ cast a >= c
+    assert $ c <= cast a
+    assert $ c < cast a
+    pure ()

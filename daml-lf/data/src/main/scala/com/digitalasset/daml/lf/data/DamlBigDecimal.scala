@@ -43,6 +43,14 @@ object DamlBigDecimal {
       DamlBigDecimal(minuend.bigDecimal.subtract(subtrahend.bigDecimal), newFlags)
   }
 
+  def compare(lhs: DamlBigDecimal, rhs: DamlBigDecimal): Int =
+    (lhs.dbdFlags contains Invalid, rhs.dbdFlags contains Invalid) match {
+      case (true, true) => 0
+      case (true, false) => -1
+      case (false, true) => 1
+      case (false, false) => lhs.bigDecimal compareTo rhs.bigDecimal
+    }
+
   val zero: DamlBigDecimal = DamlBigDecimal(JBigDec.ZERO, Set.empty)
 
   val one: DamlBigDecimal = DamlBigDecimal(JBigDec.ONE, Set.empty)

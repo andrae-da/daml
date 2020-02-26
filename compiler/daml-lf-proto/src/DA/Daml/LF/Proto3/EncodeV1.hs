@@ -508,6 +508,7 @@ encodeBuiltinExpr = \case
     BEToTextBigDec    -> builtin P.BuiltinFunctionTO_TEXT_BIGDEC
     BEAddBigDec       -> builtin P.BuiltinFunctionADD_BIGDEC
     BESubBigDec       -> builtin P.BuiltinFunctionSUB_BIGDEC
+    BECompareBigDec   -> builtin P.BuiltinFunctionCOMPARE_BIGDEC
 
     where
       builtin = pure . P.ExprSumBuiltin . P.Enumerated . Right

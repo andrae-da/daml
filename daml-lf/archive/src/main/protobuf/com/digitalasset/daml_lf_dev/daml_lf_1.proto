@@ -566,6 +566,7 @@ enum BuiltinFunction {
   TO_TEXT_BIGDEC    = 9912; // *Available in versions >= 1.dev*
   ADD_BIGDEC        = 9913; // *Available in versions >= 1.dev*
   SUB_BIGDEC        = 9914; // *Available in versions >= 1.dev*
+  COMPARE_BIGDEC    = 9915; // *Available in versions >= 1.dev*
 }
 
 // Builtin literals
