@@ -1582,45 +1582,52 @@ object SBuiltin {
 
   final case object SBDivBigDec extends SBuiltin(4) {
     def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
-      val maxDecimalPlaces = args.get(0).asInstanceOf[STNat].n
-      args.get(1) match {
-        case SText(rMode) =>
-          args.get(2) match {
-            case SBigDecimal(numerator) =>
-              args.get(3) match {
-                case SBigDecimal(denominator) =>
-                  machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.divide(
-                    maxDecimalPlaces,
-                    rMode,
-                    numerator,
-                    denominator
-                  )))
+      args.get(0) match {
+        case SInt64(maxPrecision) =>
+          args.get(1) match {
+            case SText(rMode) =>
+              args.get(2) match {
+                case SBigDecimal(numerator) =>
+                  args.get(3) match {
+                    case SBigDecimal(denominator) =>
+                      machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.divide(
+                        maxPrecision,
+                        rMode,
+                        numerator,
+                        denominator
+                      )))
+                    case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected BigDecimal, got $x")
+                  }
                 case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected BigDecimal, got $x")
               }
-            case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected BigDecimal, got $x")
+            case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected Text, got $x")
           }
-        case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected Text, got $x")
+        case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected Int64, got $x")
       }
     }
   }
 
   final case object SBDivModBigDec extends SBuiltin(4) {
     def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
-      val maxDecimalPlaces = args.get(0).asInstanceOf[STNat].n
-      args.get(1) match {
-        case SText(rMode) =>
-          args.get(2) match {
-            case SBigDecimal(numerator) =>
-              args.get(3) match {
-                case SBigDecimal(denominator) =>
-                  DamlBigDecimal.divide(maxDecimalPlaces, rMode, numerator, denominator) match {
-                    case d => machine.ctrl = CtrlValue(SList(FrontStack(List(d._1, d._2))))
+      args.get(0) match {
+        case SInt64(maxPrecision) =>
+          args.get(1) match {
+            case SText(rMode) =>
+              args.get(2) match {
+                case SBigDecimal(numerator) =>
+                  args.get(3) match {
+                    case SBigDecimal(denominator) =>
+                      DamlBigDecimal.divMod(maxPrecision, rMode, numerator, denominator) match {
+                        case (d, m) =>
+                          machine.ctrl = CtrlValue(SList(FrontStack(List(SBigDecimal(d), SBigDecimal(m)))))
+                      }
+                    case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected BigDecimal, got $x")
                   }
                 case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected BigDecimal, got $x")
               }
-            case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected BigDecimal, got $x")
+            case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected Text, got $x")
           }
-        case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected Text, got $x")
+        case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected Int, got $x")
       }
     }
   }
