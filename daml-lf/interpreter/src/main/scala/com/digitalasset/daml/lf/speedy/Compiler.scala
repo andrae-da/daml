@@ -327,6 +327,10 @@ final case class Compiler(packages: PackageId PartialFunction Package) {
               case BToTextBigDec    => SBToTextBigDec
               case BAddBigDec       => SBAddBigDec
               case BSubBigDec       => SBSubBigDec
+              case BMulBigDec       => SBMulBigDec
+              case BPowBigDec       => SBPowBigDec
+              case BDivBigDec       => SBDivBigDec
+              case BDivModBigDec    => SBDivModBigDec
               case BCompareBigDec   => SBCompareBigDec
 
               // Implemented using normal SExpr

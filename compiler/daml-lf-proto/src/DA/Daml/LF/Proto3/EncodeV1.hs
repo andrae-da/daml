@@ -508,6 +508,10 @@ encodeBuiltinExpr = \case
     BEToTextBigDec    -> builtin P.BuiltinFunctionTO_TEXT_BIGDEC
     BEAddBigDec       -> builtin P.BuiltinFunctionADD_BIGDEC
     BESubBigDec       -> builtin P.BuiltinFunctionSUB_BIGDEC
+    BEMulBigDec       -> builtin P.BuiltinFunctionMUL_BIGDEC
+    BEPowBigDec       -> builtin P.BuiltinFunctionPOW_BIGDEC
+    BEDivBigDec       -> builtin P.BuiltinFunctionDIV_BIGDEC
+    BEDivModBigDec    -> builtin P.BuiltinFunctionDIVMOD_BIGDEC
     BECompareBigDec   -> builtin P.BuiltinFunctionCOMPARE_BIGDEC
 
     where

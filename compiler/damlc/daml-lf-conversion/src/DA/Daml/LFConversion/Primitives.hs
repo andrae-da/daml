@@ -265,6 +265,14 @@ convertPrim _ "BEAddBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
     EBuiltin BEAddBigDec
 convertPrim _ "BESubBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
     EBuiltin BESubBigDec
+convertPrim _ "BEMulBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BEMulBigDec
+convertPrim _ "BEPowBigDec" (TBigDecimal :-> TInt64 :-> TBigDecimal) =
+    EBuiltin BEPowBigDec
+convertPrim _ "BEDivBigDec" (TInt64 :-> TText :-> TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BEDivBigDec
+convertPrim _ "BEDivModBigDec" (TInt64 :-> TText :-> TBigDecimal :-> TBigDecimal :-> TList TBigDecimal) =
+    EBuiltin BEDivModBigDec
 convertPrim _ "BECompareBigDec" (TBigDecimal :-> TBigDecimal :-> TInt64) =
     EBuiltin BECompareBigDec
 

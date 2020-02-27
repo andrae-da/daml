@@ -28,6 +28,7 @@ module DA.BigDecimal (
 #ifdef DAML_UNSTABLE
 import GHC.Types (BigDec, primitive)
 import GHC.Show ()
+import Prelude hiding (div)
 
 data BigDecimal r = BigDecimal BigDec deriving (Eq, Ord)
 
@@ -80,14 +81,9 @@ compareBigDecimal (BigDecimal a) (BigDecimal b) =
 -- Initial idea of how the implementation of functionality will look.
 -- Sidelined until we have a working end-to-end representation.
 --
---round : RoundingMode r => Int -> BigDecimal r -> BigDecimal r
---round p d = primitive @"BEDivBigDec" p (primRoundingMode d) d.bigDec munit
+round : RoundingMode r => Int -> BigDecimal r -> BigDecimal r
+round p d@(BigDecimal n) = BigDecimal $ primitive @"BEDivBigDec" p (primRoundingMode d) n munit
 --
---
---instance RoundingMode r => Multiplicative (BigDecimal r) where
---    (*) = multiply
---    a ^ b = primitive
---    munit = toBigDecimal @0 1.0
 --
 
 add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
@@ -96,14 +92,17 @@ add (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEAddBigDec" a b
 sub : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
 sub (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BESubBigDec" a b
 
---mul : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
---mul a b = primitive @"BEMulBigDec" a.bigDec b.bigDec
---
---div : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> BigDecimal r
---div p a b = primitive @"BEDivBigDec" p (primRoundingMode (aunit @r)) a.bigDec b.bigDec
---
---pow : forall r s t. (RoundingMode r, RoundingMode s) => BigDecimal s -> Int -> BigDecimal r
---pow a b = primitive @"BEPowBigDec" a.bigDec b.bigDec
+mul : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+mul (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEMulBigDec" a b
+
+pow : forall r s t. (RoundingMode r, RoundingMode s) => BigDecimal s -> Int -> BigDecimal r
+pow (BigDecimal a) b = BigDecimal $ primitive @"BEPowBigDec" a b
+
+div : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> BigDecimal r
+div p (BigDecimal a) (BigDecimal b) = primitive @"BEDivBigDec" p (primRoundingMode (aunit @r)) a b
+
+divMod : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> (BigDecimal r, BigDecimal r)
+divMod p (BigDecimal a) (BigDecimal b) = let [d, m] = primitive @"BEDivModBigDec" p (primRoundingMode (aunit @r)) a b in (d, m)
 
 instance RoundingMode r => Additive (BigDecimal r) where
     (+) = add
@@ -127,5 +126,15 @@ instance RoundingMode r => Signed (BigDecimal r) where
           0  -> d
           -1 -> negate d
           x  -> error $ "invalid value returned from primitive compare BigDecimal in abs: " <> show x
+
+instance RoundingMode r => Multiplicative (BigDecimal r) where
+    (*) = mul
+    (^) = pow
+    munit = toBigDecimal (1.0 : Numeric 0)
+
+instance RoundingMode r => Divisible (BigDecimal r) where
+    -- 38 + 2 allows for proper handling of rounding when used with truncation. If we provide a primitive to inspect scale then
+    -- this can be improved substantially.
+    (/) = div 40
 
 #endif

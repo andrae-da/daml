@@ -244,6 +244,10 @@ private[validation] object Typing {
       BToTextBigDec -> (TBigDecimal ->: TText),
       BAddBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal),
       BSubBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal),
+      BMulBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal),
+      BPowBigDec -> (TBigDecimal ->: TInt64 ->: TBigDecimal),
+      BDivBigDec -> (TInt64 ->: TText ->: TBigDecimal ->: TBigDecimal ->: TBigDecimal),
+      BPowBigDec -> (TInt64 ->: TText ->: TBigDecimal ->: TBigDecimal ->: TList(TBigDecimal)),
       BCompareBigDec -> (TBigDecimal ->: TBigDecimal ->: TInt64),
     )
   }

@@ -1,8 +1,9 @@
 package com.digitalasset.daml.lf
 package data
 
-import java.math.{BigDecimal => JBigDec}
-import java.math.RoundingMode
+import java.math.{MathContext, RoundingMode, BigDecimal => JBigDec}
+
+import scala.collection.immutable.Set
 
 
 /* a DAML BigDecimal carries a Scala BigDecimal and a set of flags indicating
@@ -41,6 +42,76 @@ object DamlBigDecimal {
       DamlBigDecimal(JBigDec.ONE, newFlags)
     else
       DamlBigDecimal(minuend.bigDecimal.subtract(subtrahend.bigDecimal), newFlags)
+  }
+
+  def multiply(multiplier: DamlBigDecimal, multiplicand: DamlBigDecimal): DamlBigDecimal = {
+    val newFlags = multiplier.dbdFlags union multiplicand.dbdFlags
+    if (newFlags contains Invalid)
+      DamlBigDecimal(JBigDec.ONE, newFlags)
+    else
+      DamlBigDecimal(multiplier.bigDecimal.multiply(multiplicand.bigDecimal), newFlags)
+    // We should be checking for overflow and underflow here, although given the scale that is unlikely.
+  }
+
+  def pow(base: DamlBigDecimal, exponent: Long): DamlBigDecimal = {
+    if (base.dbdFlags contains Invalid)
+      base
+    else if (exponent < 0)
+      DamlBigDecimal(JBigDec.ONE, Set.empty + Invalid)
+    else if (exponent == 0)
+      one
+    else if (exponent <= Integer.MAX_VALUE)
+      DamlBigDecimal(base.bigDecimal.pow(exponent.toInt), base.dbdFlags)
+    else
+      // We should be able to handle this with x^(ab+c) == (x^a)^b * x^c, however I don't have time
+      // for that right now, and will need to come back to it.
+      DamlBigDecimal(JBigDec.ONE, Set.empty + Invalid)
+
+  }
+
+  def divide(maxPrecision: Long, roundingMode: String, numerator: DamlBigDecimal, denominator: DamlBigDecimal): DamlBigDecimal = {
+    val newFlags = numerator.dbdFlags union denominator.dbdFlags
+    if (newFlags contains Invalid)
+      DamlBigDecimal(JBigDec.ONE, newFlags)
+    else if (denominator.bigDecimal == JBigDec.ZERO)
+      DamlBigDecimal(JBigDec.ONE, newFlags + Invalid)
+    else if (numerator.bigDecimal == JBigDec.ZERO)
+      DamlBigDecimal(JBigDec.ZERO, newFlags)
+    else if (maxPrecision > Integer.MAX_VALUE || maxPrecision < 1)
+      DamlBigDecimal(JBigDec.ONE, newFlags + Invalid)
+    else
+      try {
+        val mc = new MathContext(maxPrecision.toInt, RoundingMode.valueOf(roundingMode))
+        val d = numerator.bigDecimal.divide(denominator.bigDecimal, mc)
+        if (d == JBigDec.ZERO)
+          DamlBigDecimal(d, newFlags + Underflow)
+        else
+          DamlBigDecimal(d, newFlags)
+      } catch {
+        case _: ArithmeticException =>
+          DamlBigDecimal(JBigDec.ONE, Set.empty + Invalid)
+      }
+  }
+
+  def divMod(maxPrecision: Long, roundingMode: String, numerator: DamlBigDecimal, denominator: DamlBigDecimal): (DamlBigDecimal, DamlBigDecimal) = {
+    val newFlags = numerator.dbdFlags union denominator.dbdFlags
+    if (newFlags contains Invalid)
+      (DamlBigDecimal(JBigDec.ONE, newFlags), DamlBigDecimal(JBigDec.ONE, newFlags))
+    else if (denominator.bigDecimal == JBigDec.ZERO)
+      (DamlBigDecimal(JBigDec.ONE, newFlags + Invalid), DamlBigDecimal(JBigDec.ONE, newFlags + Invalid))
+    else if (numerator.bigDecimal == JBigDec.ZERO)
+      (DamlBigDecimal(JBigDec.ZERO, newFlags), DamlBigDecimal(JBigDec.ZERO, newFlags))
+    else if (maxPrecision > Integer.MAX_VALUE || maxPrecision < 1)
+      (DamlBigDecimal(JBigDec.ONE, newFlags + Invalid), DamlBigDecimal(JBigDec.ONE, newFlags + Invalid))
+    else
+      try {
+        val mc = new MathContext(maxPrecision.toInt, RoundingMode.valueOf(roundingMode))
+        val d = numerator.bigDecimal.divideAndRemainder(denominator.bigDecimal, mc)
+        (DamlBigDecimal(d(0), newFlags), DamlBigDecimal(d(1), newFlags))
+      } catch {
+        case _: ArithmeticException =>
+          (DamlBigDecimal(JBigDec.ONE, newFlags + Invalid), DamlBigDecimal(JBigDec.ONE, newFlags + Invalid))
+      }
   }
 
   def compare(lhs: DamlBigDecimal, rhs: DamlBigDecimal): Int =

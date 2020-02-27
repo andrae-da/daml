@@ -286,6 +286,10 @@ typeOfBuiltin = \case
   BEToTextBigDec -> pure $ TBigDecimal :-> TText
   BEAddBigDec -> pure $ TBigDecimal :-> TBigDecimal :-> TBigDecimal
   BESubBigDec -> pure $ TBigDecimal :-> TBigDecimal :-> TBigDecimal
+  BEMulBigDec -> pure $ TBigDecimal :-> TBigDecimal :-> TBigDecimal
+  BEPowBigDec -> pure $ TBigDecimal :-> TInt64 :-> TBigDecimal
+  BEDivBigDec -> pure $ TInt64 :-> TText :-> TBigDecimal :-> TBigDecimal :-> TBigDecimal
+  BEDivModBigDec -> pure $ TInt64 :-> TText :-> TBigDecimal :-> TBigDecimal :-> TList TBigDecimal
   BECompareBigDec -> pure $ TBigDecimal :-> TBigDecimal :-> TInt64
 
   where

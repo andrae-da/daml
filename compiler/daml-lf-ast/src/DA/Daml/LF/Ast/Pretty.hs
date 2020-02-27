@@ -286,6 +286,10 @@ instance Pretty BuiltinExpr where
     BEToTextBigDec -> "TO_TEXT_BIGDECIMAL"
     BEAddBigDec -> "ADD_BIGDECIMAL"
     BESubBigDec -> "SUB_BIGDECIMAL"
+    BEMulBigDec -> "MUL_BIGDECIMAL"
+    BEPowBigDec -> "POW_BIGDECIMAL"
+    BEDivBigDec -> "DIV_BIGDECIMAL"
+    BEDivModBigDec -> "DIVMOD_BIGDECIMAL"
     BECompareBigDec -> "COMPARE_BIGDECIMAL"
 
     where
