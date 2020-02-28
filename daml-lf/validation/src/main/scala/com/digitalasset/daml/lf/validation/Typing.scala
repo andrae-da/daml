@@ -247,7 +247,7 @@ private[validation] object Typing {
       BMulBigDec -> (TBigDecimal ->: TBigDecimal ->: TBigDecimal),
       BPowBigDec -> (TBigDecimal ->: TInt64 ->: TBigDecimal),
       BDivBigDec -> (TInt64 ->: TText ->: TBigDecimal ->: TBigDecimal ->: TBigDecimal),
-      BPowBigDec -> (TInt64 ->: TText ->: TBigDecimal ->: TBigDecimal ->: TList(TBigDecimal)),
+      BDivModBigDec -> (TInt64 ->: TText ->: TBigDecimal ->: TBigDecimal ->: TList(TBigDecimal)),
       BCompareBigDec -> (TBigDecimal ->: TBigDecimal ->: TInt64),
     )
   }

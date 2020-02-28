@@ -3,6 +3,7 @@
 
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 daml 1.2
 module DA.BigDecimal (
@@ -77,32 +78,36 @@ compareBigDecimal (BigDecimal a) (BigDecimal b) =
         1  -> GT
         0  -> EQ
         -1 -> LT
+        x -> error $ "Invalid value returned from compareBigDec: " <> show x
 
 -- Initial idea of how the implementation of functionality will look.
 -- Sidelined until we have a working end-to-end representation.
 --
 round : RoundingMode r => Int -> BigDecimal r -> BigDecimal r
-round p d@(BigDecimal n) = BigDecimal $ primitive @"BEDivBigDec" p (primRoundingMode d) n munit
---
---
+round p d@(BigDecimal n) = BigDecimal res
+  where
+    res = primitive @"BEDivBigDec" p (primRoundingMode d) n one
+    one = toBigDec (munit: Numeric 0)
 
-add : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+add : (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
 add (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEAddBigDec" a b
 
-sub : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+sub : (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
 sub (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BESubBigDec" a b
 
-mul : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+mul : (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
 mul (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEMulBigDec" a b
 
-pow : forall r s t. (RoundingMode r, RoundingMode s) => BigDecimal s -> Int -> BigDecimal r
+pow : (RoundingMode r, RoundingMode s) => BigDecimal s -> Int -> BigDecimal r
 pow (BigDecimal a) b = BigDecimal $ primitive @"BEPowBigDec" a b
 
 div : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> BigDecimal r
-div p (BigDecimal a) (BigDecimal b) = primitive @"BEDivBigDec" p (primRoundingMode (aunit @r)) a b
+div p (BigDecimal a) (BigDecimal b) =
+  BigDecimal $ primitive @"BEDivBigDec" p (primRoundingMode (aunit @(BigDecimal r))) a b
 
 divMod : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> (BigDecimal r, BigDecimal r)
-divMod p (BigDecimal a) (BigDecimal b) = let [d, m] = primitive @"BEDivModBigDec" p (primRoundingMode (aunit @r)) a b in (d, m)
+divMod p (BigDecimal a) (BigDecimal b) = (BigDecimal d, BigDecimal m)
+  where [d, m] = primitive @"BEDivModBigDec" p (primRoundingMode (aunit @(BigDecimal r))) a b
 
 instance RoundingMode r => Additive (BigDecimal r) where
     (+) = add

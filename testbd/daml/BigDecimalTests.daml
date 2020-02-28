@@ -71,8 +71,8 @@ testAdditive _ = scenario do
     assert $ (1.345 : Numeric 3) == fromSome (toNumeric $ b + a)
     assert $ (0.935 : Numeric 3) == fromSome (toNumeric $ a - b)
     assert $ (-0.935 : Numeric 3) == fromSome (toNumeric $ b - a)
-    assert $ (0.935 : Numeric 3) == fromSome (toNumeric $ a + negate b)
-    assert $ (-0.935 : Numeric 3) == fromSome (toNumeric $ b + negate a)
+    assert $ (0.935 : Numeric 3) == fromSome (toNumeric $ a + negate b) -- on purpose this is not a - b
+    assert $ (-0.935 : Numeric 3) == fromSome (toNumeric $ b + negate a) -- on purpose this is not a - b
     assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ a + aunit)
     assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ aunit + a + aunit)
     assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ a - aunit)
