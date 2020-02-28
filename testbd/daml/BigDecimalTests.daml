@@ -6,10 +6,12 @@ module BigDecimalTests where
 
 import DA.BigDecimal
 import DA.Optional (fromSome, isNone)
+import DA.Assert
 
 testSuite = scenario do
     testToFromNumeric ()
     testAdditive ()
+    testMulDiv ()
     testEq ()
     testOrd ()
     testShow ()
@@ -85,6 +87,41 @@ testAdditive _ = scenario do
     assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ a - aunit)
     assert $ (-1.14 : Numeric 3) == fromSome (toNumeric $ aunit - a - aunit)
     pure ()
+
+testMulDiv _ = scenario do
+    let a : BigDecimal Floor = toBigDecimal (1.23 : Numeric 2)
+        b : BigDecimal Floor = toBigDecimal (4.567 : Numeric 3)
+    -- multiplication
+    5.61741 === fromSome (toNumeric @_ @5 $ a * b)
+    5.617   === fromSome (toNumeric @_ @3 $ b * a)
+    0.26932 === fromSome (toNumeric @_ @5 $ a / b)
+    0.26    === fromSome (toNumeric @_ @2 $ a / b)
+
+    let one     = convertHalfAwayFromZero (1.0 : Numeric 0)
+        three   = convertHalfAwayFromZero (3.0 : Numeric 0)
+        zero    = three - three
+        much    = convertHalfAwayFromZero (100_00000_00000_00000_00000_00000_00000.0 : Numeric 0)
+    -- division
+    (0.33333_33333 : Numeric 10) === fromSome (toNumeric $ one / three)
+    (one - one, one) === divMod 6 one three
+    -- large and small values
+    let more   = three * much * much
+        little = one / more / more
+    assert $ isNone (toNumeric @_ @0 more)
+    show more === "30000000000000000000000000000000000000000000000000000000000000000/HALF_UP"
+    more / much / much === three
+    show little === "1.111111111111111111111111111111111111111E-129/HALF_UP"
+    little / little === one
+    -- invalid values
+    let invalid = three / zero
+    "<invalid value>/HALF_UP" === show invalid
+    assert $ isNone (toNumeric @_ @0 invalid)
+    invalid === mul three invalid
+    invalid === mul invalid zero
+    (invalid, invalid) === divMod 6 one zero
+    (invalid, invalid) === divMod 6 one invalid
+    (invalid, invalid) === divMod 6 invalid one
+
 
 testShow _ = scenario do
     assert $ "1.2450/DOWN" == (show . toBigDecimal @TowardZero $ (1.245 : Numeric 4))
