@@ -68,6 +68,7 @@ abstract class ApiCodecCompressed[Cid](
     case genMap: V.ValueGenMap[Cid] =>
       apiGenMapToJsValue(genMap)
     case _: V.ValueStruct[Cid] => serializationError("impossible! structs are not serializable")
+    case _ : V.ValueBigDecimal => serializationError("impossible! BigDecimals are not serializable")
   }
 
   @throws[SerializationException]

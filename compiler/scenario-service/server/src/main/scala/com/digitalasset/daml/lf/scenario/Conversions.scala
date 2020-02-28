@@ -667,6 +667,7 @@ case class Conversions(homePackageId: Ref.PackageId) {
         )
       case V.ValueInt64(v) => builder.setInt64(v)
       case V.ValueNumeric(d) => builder.setDecimal(Numeric.toString(d))
+      case V.ValueBigDecimal(d) => builder.setDecimal(d.toString) // FIXME can we piggy-back on the existing protobuf Decimal?
       case V.ValueText(t) => builder.setText(t)
       case V.ValueTimestamp(ts) => builder.setTimestamp(ts.micros)
       case V.ValueDate(d) => builder.setDate(d.days)

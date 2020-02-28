@@ -82,6 +82,8 @@ private[validation] object Serializability {
       case TBuiltin(builtinType) =>
         builtinType match {
           case BTInt64 | BTText | BTTimestamp | BTDate | BTParty | BTBool | BTUnit =>
+          case BTBigDecimal =>
+            unserializable(URCustom("arbitrary precision BigDecimal"))
           case BTNumeric =>
             unserializable(URNumeric)
           case BTList =>

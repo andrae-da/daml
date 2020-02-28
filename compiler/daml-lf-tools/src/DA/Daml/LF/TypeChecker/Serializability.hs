@@ -102,6 +102,7 @@ serializabilityConditionsType world0 _version mbModNameTpls vars = go
         BTNumeric -> Left URNumeric -- 'Numeric' is used as a higher-kinded type constructor.
         BTAny -> Left URAny
         BTTypeRep -> Left URTypeRep
+        BTBigDecimal -> Left URNumericNotFixed -- "numeric scale is not fixed" describes it well enough IMHO
       TForall{} -> Left URForall
       TStruct{} -> Left URStruct
 

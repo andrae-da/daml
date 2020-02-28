@@ -287,6 +287,7 @@ encodeBuiltinType = P.Enumerated . Right . \case
     BTNumeric -> P.PrimTypeNUMERIC
     BTAny -> P.PrimTypeANY
     BTTypeRep -> P.PrimTypeTYPE_REP
+    BTBigDecimal -> P.PrimTypeBIGDECIMAL
 
 encodeType' :: Type -> Encode P.Type
 encodeType' typ = fmap (P.Type . Just) $ case typ ^. _TApps of
@@ -421,6 +422,7 @@ encodeBuiltinExpr = \case
       BTTimestamp -> builtin P.BuiltinFunctionTO_TEXT_TIMESTAMP
       BTDate -> builtin P.BuiltinFunctionTO_TEXT_DATE
       BTParty -> builtin P.BuiltinFunctionTO_TEXT_PARTY
+      BTBigDecimal -> builtin P.BuiltinFunctionTO_TEXT_BIGDEC
       other -> error $ "BEToText unexpected type " <> show other
     BEToTextNumeric -> builtin P.BuiltinFunctionTO_TEXT_NUMERIC
     BETextFromCodePoints -> builtin P.BuiltinFunctionTEXT_FROM_CODE_POINTS
@@ -500,6 +502,17 @@ encodeBuiltinExpr = \case
     BETextReplicate -> builtin P.BuiltinFunctionTEXT_REPLICATE
     BETextSplitOn -> builtin P.BuiltinFunctionTEXT_SPLIT_ON
     BETextIntercalate -> builtin P.BuiltinFunctionTEXT_INTERCALATE
+
+    BENumericToBigDec -> builtin P.BuiltinFunctionNUMERIC_TO_BIGDEC
+    BEBigDecToNumeric -> builtin P.BuiltinFunctionBIGDEC_TO_NUMERIC
+    BEToTextBigDec    -> builtin P.BuiltinFunctionTO_TEXT_BIGDEC
+    BEAddBigDec       -> builtin P.BuiltinFunctionADD_BIGDEC
+    BESubBigDec       -> builtin P.BuiltinFunctionSUB_BIGDEC
+    BEMulBigDec       -> builtin P.BuiltinFunctionMUL_BIGDEC
+    BEPowBigDec       -> builtin P.BuiltinFunctionPOW_BIGDEC
+    BEDivBigDec       -> builtin P.BuiltinFunctionDIV_BIGDEC
+    BEDivModBigDec    -> builtin P.BuiltinFunctionDIVMOD_BIGDEC
+    BECompareBigDec   -> builtin P.BuiltinFunctionCOMPARE_BIGDEC
 
     where
       builtin = pure . P.ExprSumBuiltin . P.Enumerated . Right

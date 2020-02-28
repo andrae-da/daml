@@ -294,7 +294,10 @@ object SBuiltin {
         case SParty(p) => p
         case SUnit => s"<unit>"
         case SDate(date) => date.toString
-        case SContractId(_) | SNumeric(_) => crash("litToText: literal not supported")
+        case SBigDecimal(d) => d.toString
+        case SContractId(_)
+          | SNumeric(_)
+            => crash("litToText: literal not supported")
       })
     }
   }
@@ -1479,6 +1482,166 @@ object SBuiltin {
           }
         case x =>
           throw SErrorCrash(s"type mismatch SBTextIntercalate, expected Text got $x")
+      }
+    }
+  }
+
+  final case object SBBigDecToNumeric extends SBuiltin(3) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      val outputScale = args.get(0).asInstanceOf[STNat].n
+      args.get(1) match {
+        case SText(rMode) =>
+          args.get(2) match {
+            case SBigDecimal(bigDecimal) =>
+              machine.ctrl = bigDecimal.toNumeric(outputScale, rMode) match {
+                case Left(_) => CtrlValue.None
+                case Right(d) => CtrlValue(SOptional(Some(SNumeric(d))))
+              }
+            case x => throw SErrorCrash(s"type mismatch SBBigDecToNumeric, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBBigDecToNumeric, expected Text, got $x")
+      }
+    }
+  }
+
+  final case object SBNumericToBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      val inputScale = args.get(0).asInstanceOf[STNat].n
+      val input = args.get(1).asInstanceOf[SNumeric].value
+      if (input.scale == inputScale)
+        machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.fromNumeric(input)))
+      else
+        crash(s"internal scale: $input.scale does not match expected (Numeric $inputScale)")
+    }
+  }
+
+  final case object SBToTextBigDec extends SBuiltin(1) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(bigDecimal) =>
+          machine.ctrl = CtrlValue(SText(bigDecimal.toString))
+        case x => throw SErrorCrash(s"type mismatch SBToTextBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
+  final case object SBAddBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(addend) =>
+          args.get(1) match {
+            case SBigDecimal(augend) =>
+              machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.add(addend, augend)))
+            case x => throw SErrorCrash(s"type mismatch SBAddBigDec, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBAddBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
+  final case object SBSubBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(minuend) =>
+          args.get(1) match {
+            case SBigDecimal(subtrahend) =>
+              machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.subtract(minuend, subtrahend)))
+            case x => throw SErrorCrash(s"type mismatch SBSubBigDec, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBSubBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
+  final case object SBMulBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(multiplier) =>
+          args.get(1) match {
+            case SBigDecimal(multiplicand) =>
+              machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.multiply(multiplier, multiplicand)))
+            case x => throw SErrorCrash(s"type mismatch SBMulBigDec, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBMulBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
+  final case object SBPowBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(base) =>
+          args.get(1) match {
+            case SInt64(exponent) => machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.pow(base, exponent)))
+            case x => throw SErrorCrash(s"type mismatch SBPowBigDec, expected Int64, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBPowBigDec, expected BigDecimal, got $x")
+      }
+    }
+  }
+
+  final case object SBDivBigDec extends SBuiltin(4) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SInt64(maxPrecision) =>
+          args.get(1) match {
+            case SText(rMode) =>
+              args.get(2) match {
+                case SBigDecimal(numerator) =>
+                  args.get(3) match {
+                    case SBigDecimal(denominator) =>
+                      machine.ctrl = CtrlValue(SBigDecimal(DamlBigDecimal.divide(
+                        maxPrecision,
+                        rMode,
+                        numerator,
+                        denominator
+                      )))
+                    case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected BigDecimal, got $x")
+                  }
+                case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected BigDecimal, got $x")
+              }
+            case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected Text, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBDivBigDec, expected Int64, got $x")
+      }
+    }
+  }
+
+  final case object SBDivModBigDec extends SBuiltin(4) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SInt64(maxPrecision) =>
+          args.get(1) match {
+            case SText(rMode) =>
+              args.get(2) match {
+                case SBigDecimal(numerator) =>
+                  args.get(3) match {
+                    case SBigDecimal(denominator) =>
+                      DamlBigDecimal.divMod(maxPrecision, rMode, numerator, denominator) match {
+                        case (d, m) =>
+                          machine.ctrl = CtrlValue(SList(FrontStack(List(SBigDecimal(d), SBigDecimal(m)))))
+                      }
+                    case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected BigDecimal, got $x")
+                  }
+                case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected BigDecimal, got $x")
+              }
+            case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected Text, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBDivModBigDec, expected Int, got $x")
+      }
+    }
+  }
+
+  final case object SBCompareBigDec extends SBuiltin(2) {
+    def execute(args: util.ArrayList[SValue], machine: Machine): Unit = {
+      args.get(0) match {
+        case SBigDecimal(lhs) =>
+          args.get(1) match {
+            case SBigDecimal(rhs) =>
+              machine.ctrl = CtrlValue(SInt64(DamlBigDecimal.compare(lhs, rhs).toLong))
+            case x => throw SErrorCrash(s"type mismatch SBCompareBigDec, expected BigDecimal, got $x")
+          }
+        case x => throw SErrorCrash(s"type mismatch SBCompareBigDec, expected BigDecimal, got $x")
       }
     }
   }

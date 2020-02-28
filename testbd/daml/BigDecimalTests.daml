@@ -1,0 +1,166 @@
+-- Copyright (c) 2020 The DAML Authors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+
+daml 1.2
+module BigDecimalTests where
+
+import DA.BigDecimal
+import DA.Optional (fromSome, isNone)
+import DA.Assert
+
+testSuite = scenario do
+    testToFromNumeric ()
+    testAdditive ()
+    testMulDiv ()
+    testEq ()
+    testOrd ()
+    testShow ()
+
+convertTowardZero : Numeric n -> BigDecimal TowardZero
+convertTowardZero = toBigDecimal
+
+convertAwayFromZero : Numeric n -> BigDecimal AwayFromZero
+convertAwayFromZero = toBigDecimal
+
+convertFloor : Numeric n -> BigDecimal Floor
+convertFloor = toBigDecimal
+
+convertCeiling : Numeric n -> BigDecimal Ceiling
+convertCeiling = toBigDecimal
+
+convertHalfAwayFromZero : Numeric n -> BigDecimal HalfAwayFromZero
+convertHalfAwayFromZero = toBigDecimal
+
+convertHalfTowardZero : Numeric n -> BigDecimal HalfTowardZero
+convertHalfTowardZero = toBigDecimal
+
+convertHalfEven : Numeric n -> BigDecimal HalfToEven
+convertHalfEven = toBigDecimal
+
+revert2 : RoundingMode r => BigDecimal r -> Numeric 2
+revert2 = fromSome . toNumeric
+
+testToFromNumeric _ = scenario do
+    -- Positive Even Tests
+    assert $ 1.24 == (revert2 . convertTowardZero) (1.245 : Numeric 10)
+    assert $ 1.25 == (revert2 . convertAwayFromZero) (1.245 : Numeric 10)
+    assert $ 1.24 == (revert2 . convertFloor) (1.245 : Numeric 10)
+    assert $ 1.25 == (revert2 . convertCeiling) (1.245 : Numeric 10)
+    assert $ 1.24 == (revert2 . convertHalfTowardZero) (1.245 : Numeric 10)
+    assert $ 1.25 == (revert2 . convertHalfAwayFromZero) (1.245 : Numeric 10)
+    assert $ 1.24 == (revert2 . convertHalfEven) (1.245 : Numeric 10)
+
+    -- Negative Even Tests
+    assert $ -1.24 == (revert2 . convertTowardZero) (-1.245 : Numeric 10)
+    assert $ -1.25 == (revert2 . convertAwayFromZero) (-1.245 : Numeric 10)
+    assert $ -1.25 == (revert2 . convertFloor) (-1.245 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertCeiling) (-1.245 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertHalfTowardZero) (-1.245 : Numeric 10)
+    assert $ -1.25 == (revert2 . convertHalfAwayFromZero) (-1.245 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertHalfEven) (-1.245 : Numeric 10)
+
+    -- Odd Tests
+    assert $ 1.24 == (revert2 . convertHalfEven) (1.235 : Numeric 10)
+    assert $ -1.24 == (revert2 . convertHalfEven) (-1.235 : Numeric 10)
+
+    -- Round-trip Test
+    assert $ 1.24 == (revert2 . convertTowardZero . revert2 . convertTowardZero) (1.245 : Numeric 10)
+
+    -- out-of-range tests
+    let tento37 = convertCeiling (1_00_00000_00000_00000_00000_00000_00000_00000.0 : Numeric 0)
+        tento38 = sum [tento37, tento37, tento37, tento37, tento37, tento37, tento37, tento37, tento37, tento37]
+    assert $ isNone (toNumeric tento38 : Optional (Numeric 0))
+    assert $ isNone (toNumeric tento37 : Optional (Numeric 1))
+
+
+testAdditive _ = scenario do
+    let a : BigDecimal Floor = toBigDecimal (1.14 : Numeric 2)
+        b : BigDecimal Floor = toBigDecimal (0.205 : Numeric 3)
+    assert $ (1.345 : Numeric 3) == fromSome (toNumeric $ a + b)
+    assert $ (1.345 : Numeric 3) == fromSome (toNumeric $ b + a)
+    assert $ (0.935 : Numeric 3) == fromSome (toNumeric $ a - b)
+    assert $ (-0.935 : Numeric 3) == fromSome (toNumeric $ b - a)
+    assert $ (0.935 : Numeric 3) == fromSome (toNumeric $ a + negate b) -- on purpose this is not a - b
+    assert $ (-0.935 : Numeric 3) == fromSome (toNumeric $ b + negate a) -- on purpose this is not a - b
+    assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ a + aunit)
+    assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ aunit + a + aunit)
+    assert $ (1.14 : Numeric 3) == fromSome (toNumeric $ a - aunit)
+    assert $ (-1.14 : Numeric 3) == fromSome (toNumeric $ aunit - a - aunit)
+    pure ()
+
+testMulDiv _ = scenario do
+    let a : BigDecimal Floor = toBigDecimal (1.23 : Numeric 2)
+        b : BigDecimal Floor = toBigDecimal (4.567 : Numeric 3)
+    -- multiplication
+    5.61741 === fromSome (toNumeric @_ @5 $ a * b)
+    5.617   === fromSome (toNumeric @_ @3 $ b * a)
+    0.26932 === fromSome (toNumeric @_ @5 $ a / b)
+    0.26    === fromSome (toNumeric @_ @2 $ a / b)
+
+    let one     = convertHalfAwayFromZero (1.0 : Numeric 0)
+        three   = convertHalfAwayFromZero (3.0 : Numeric 0)
+        zero    = three - three
+        much    = convertHalfAwayFromZero (100_00000_00000_00000_00000_00000_00000.0 : Numeric 0)
+    -- division
+    (0.33333_33333 : Numeric 10) === fromSome (toNumeric $ one / three)
+    (one - one, one) === divMod 6 one three
+    -- large and small values
+    let more   = three * much * much
+        little = one / more / more
+    assert $ isNone (toNumeric @_ @0 more)
+    show more === "30000000000000000000000000000000000000000000000000000000000000000/HALF_UP"
+    more / much / much === three
+    show little === "1.111111111111111111111111111111111111111E-129/HALF_UP"
+    little / little === one
+    -- invalid values
+    let invalid = three / zero
+    "<invalid value>/HALF_UP" === show invalid
+    assert $ isNone (toNumeric @_ @0 invalid)
+    invalid === mul three invalid
+    invalid === mul invalid zero
+    (invalid, invalid) === divMod 6 one zero
+    (invalid, invalid) === divMod 6 one invalid
+    (invalid, invalid) === divMod 6 invalid one
+
+
+testShow _ = scenario do
+    assert $ "1.2450/DOWN" == (show . toBigDecimal @TowardZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/UP" == (show . toBigDecimal @AwayFromZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/FLOOR" == (show . toBigDecimal @Floor $ (1.245 : Numeric 4))
+    assert $ "1.2450/CEILING" == (show . toBigDecimal @Ceiling $ (1.245 : Numeric 4))
+    assert $ "1.2450/HALF_DOWN" == (show . toBigDecimal @HalfTowardZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/HALF_UP" == (show . toBigDecimal @HalfAwayFromZero $ (1.245 : Numeric 4))
+    assert $ "1.2450/HALF_EVEN" == (show . toBigDecimal @HalfToEven $ (1.245 : Numeric 4))
+
+testEq _ = scenario do
+    assert $ toBigDecimal @Floor (1.123 : Numeric 3) == toBigDecimal @Floor (1.1230000 : Numeric 7)
+    assert $ toBigDecimal @Floor (1.123 : Numeric 3) == cast (toBigDecimal @TowardZero (1.1230000 : Numeric 7))
+    assert $ toBigDecimal @Floor (1.125 : Numeric 3) /= toBigDecimal @Floor (1.1230000 : Numeric 7)
+    assert $ toBigDecimal @Floor (1.125 : Numeric 3) /= cast (toBigDecimal @TowardZero (1.1230000 : Numeric 7))
+
+testOrd _ = scenario do
+    let a : BigDecimal Floor = toBigDecimal (1.14 : Numeric 2)
+        b : BigDecimal Floor = toBigDecimal (0.205 : Numeric 3)
+        c : BigDecimal TowardZero = toBigDecimal (-1.205 : Numeric 3)
+    assert $ compareBigDecimal a a == EQ
+    assert $ compareBigDecimal a b == GT
+    assert $ compareBigDecimal b a == LT
+    assert $ compareBigDecimal b b == EQ
+    assert $ compareBigDecimal a c == GT
+    assert $ compareBigDecimal c a == LT
+    assert $ compareBigDecimal b c == GT
+    assert $ compareBigDecimal c b == LT
+    assert $ a == a
+    assert $ a > b
+    assert $ a >= b
+    assert $ b <= a
+    assert $ b < a
+    assert $ a > cast c
+    assert $ a >= cast c
+    assert $ cast c <= a
+    assert $ cast c < a
+    assert $ cast a > c
+    assert $ cast a >= c
+    assert $ c <= cast a
+    assert $ c < cast a
+    pure ()

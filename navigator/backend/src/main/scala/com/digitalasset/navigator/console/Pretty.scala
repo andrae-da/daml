@@ -257,6 +257,7 @@ object Pretty {
           )
       }: _*)
     case _: model.ApiImpossible => sys.error("impossible! structs are not serializable")
+    case _: V.ValueBigDecimal => sys.error("impossible! Big Decimals are not serializable")
   }
 
   /** Outputs an object in YAML format */

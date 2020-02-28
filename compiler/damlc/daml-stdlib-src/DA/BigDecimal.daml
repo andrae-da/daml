@@ -1,0 +1,148 @@
+-- Copyright (c) 2020 The DAML Authors. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
+daml 1.2
+module DA.BigDecimal (
+#ifdef DAML_UNSTABLE
+    BigDecimal
+  , RoundingMode
+  , Floor
+  , Ceiling
+  , TowardZero
+  , HalfToEven
+  , AwayFromZero
+  , HalfTowardZero
+  , HalfAwayFromZero
+  , toNumeric
+  , toBigDecimal
+  , cast
+  , compareBigDecimal
+  , add
+  , sub
+  , mul
+  , div
+  , divMod
+#endif
+) where
+
+#ifdef DAML_UNSTABLE
+import GHC.Types (BigDec, primitive)
+import GHC.Show ()
+import Prelude hiding (div)
+
+data BigDecimal r = BigDecimal BigDec deriving (Eq, Ord)
+
+instance RoundingMode r => Show (BigDecimal r) where
+  show d@(BigDecimal bigDec) = show bigDec <> "/" <> (primRoundingMode d)
+
+-- | Rounding Mode is represented as a type annotation on the BigDecimal type
+class RoundingMode r where
+    -- | Adjustment to the coefficient required given a computed rounding state and a given sign
+    primRoundingMode : BigDecimal r -> Text
+
+data Floor             -- ^ 1.1 -> 1, -1.1 -> -2, 1.5 -> 1, -1.5 -> -2, 1.6 -> 1, -1.6 -> -2, 2.5 -> 2, -2.5 -> -3
+data Ceiling           -- ^ 1.1 -> 2, -1.1 -> -1, 1.5 -> 2, -1.5 -> -1, 1.6 -> 2, -1.6 -> -1, 2.5 -> 3, -2.5 -> -2
+data TowardZero        -- ^ 1.1 -> 1, -1.1 -> -1, 1.5 -> 1, -1.5 -> -1, 1.6 -> 1, -1.6 -> -1, 2.5 -> 2, -2.5 -> -2
+data HalfToEven        -- ^ 1.1 -> 1, -1.1 -> -1, 1.5 -> 2, -1.5 -> -2, 1.6 -> 1, -1.6 -> -1, 2.5 -> 2, -2.5 -> -2
+data AwayFromZero      -- ^ 1.1 -> 2, -1.1 -> -2, 1.5 -> 2, -1.5 -> -2, 1.6 -> 2, -1.6 -> -2, 2.5 -> 3, -2.5 -> -3
+data HalfTowardZero    -- ^ 1.1 -> 1, -1.1 -> -1, 1.5 -> 1, -1.5 -> -1, 1.6 -> 2, -1.6 -> -2, 2.5 -> 2, -2.5 -> -2
+data HalfAwayFromZero  -- ^ 1.1 -> 1, -1.1 -> -1, 1.5 -> 2, -1.5 -> -2, 1.6 -> 2, -1.6 -> -2, 2.5 -> 3, -2.5 -> -3
+
+instance RoundingMode Floor where primRoundingMode _ = "FLOOR"
+instance RoundingMode Ceiling where primRoundingMode _ = "CEILING"
+instance RoundingMode TowardZero where primRoundingMode _ = "DOWN"
+instance RoundingMode HalfToEven where primRoundingMode _ = "HALF_EVEN"
+instance RoundingMode AwayFromZero where primRoundingMode _ = "UP"
+instance RoundingMode HalfTowardZero where primRoundingMode _ = "HALF_DOWN"
+instance RoundingMode HalfAwayFromZero where primRoundingMode _ = "HALF_UP"
+
+toNumeric : (RoundingMode r, NumericScale n) => BigDecimal r -> Optional (Numeric n)
+toNumeric d@(BigDecimal bigDec) = bigDecToNumeric (primRoundingMode d) bigDec
+
+bigDecToNumeric : NumericScale n => Text -> BigDec -> Optional (Numeric n)
+bigDecToNumeric = primitive @"BEBigDecToNumeric"
+
+toBigDecimal : (RoundingMode r) => Numeric n -> BigDecimal r
+toBigDecimal = BigDecimal . toBigDec
+
+toBigDec : Numeric n -> BigDec
+toBigDec = primitive @"BENumericToBigDec"
+
+cast : (RoundingMode r, RoundingMode s) => BigDecimal s -> BigDecimal r
+cast (BigDecimal bigDec) = BigDecimal bigDec
+
+compareBigDecimal : (RoundingMode r, RoundingMode s) => BigDecimal r -> BigDecimal s -> Ordering
+compareBigDecimal (BigDecimal a) (BigDecimal b) =
+    case primitive @"BECompareBigDec" a b of
+        1  -> GT
+        0  -> EQ
+        -1 -> LT
+        x -> error $ "Invalid value returned from compareBigDec: " <> show x
+
+-- Initial idea of how the implementation of functionality will look.
+-- Sidelined until we have a working end-to-end representation.
+--
+round : RoundingMode r => Int -> BigDecimal r -> BigDecimal r
+round p d@(BigDecimal n) = BigDecimal res
+  where
+    res = primitive @"BEDivBigDec" p (primRoundingMode d) n one
+    one = toBigDec (munit: Numeric 0)
+
+add : (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+add (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEAddBigDec" a b
+
+sub : (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+sub (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BESubBigDec" a b
+
+mul : (RoundingMode r, RoundingMode s, RoundingMode t) => BigDecimal s -> BigDecimal t -> BigDecimal r
+mul (BigDecimal a) (BigDecimal b) = BigDecimal $ primitive @"BEMulBigDec" a b
+
+pow : (RoundingMode r, RoundingMode s) => BigDecimal s -> Int -> BigDecimal r
+pow (BigDecimal a) b = BigDecimal $ primitive @"BEPowBigDec" a b
+
+div : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> BigDecimal r
+div p (BigDecimal a) (BigDecimal b) =
+  BigDecimal $ primitive @"BEDivBigDec" p (primRoundingMode (aunit @(BigDecimal r))) a b
+
+divMod : forall r s t. (RoundingMode r, RoundingMode s, RoundingMode t) => Int -> BigDecimal s -> BigDecimal t -> (BigDecimal r, BigDecimal r)
+divMod p (BigDecimal a) (BigDecimal b) = (BigDecimal d, BigDecimal m)
+  where [d, m] = primitive @"BEDivModBigDec" p (primRoundingMode (aunit @(BigDecimal r))) a b
+
+instance RoundingMode r => Additive (BigDecimal r) where
+    (+) = add
+    (-) = sub
+    negate a = aunit - a
+    aunit = toBigDecimal (0.0 : Numeric 0)
+
+instance RoundingMode r => Signed (BigDecimal r) where
+    signum (BigDecimal bd) =
+      let (BigDecimal zero) = toBigDecimal @r (0.0 : Numeric 0)
+      in case primitive @"BECompareBigDec" bd zero of
+          1  -> toBigDecimal @r (1.0 : Numeric 0)
+          0  -> BigDecimal @r zero
+          -1 -> toBigDecimal @r (-1.0 : Numeric 0)
+          x  -> error $ "invalid value returned from primitive compare BigDecimal in signum: " <> show x
+
+    abs d@(BigDecimal bd) =
+      let (BigDecimal zero) = toBigDecimal @r (0.0 : Numeric 0)
+      in case primitive @"BECompareBigDec" bd zero of
+          1  -> d
+          0  -> d
+          -1 -> negate d
+          x  -> error $ "invalid value returned from primitive compare BigDecimal in abs: " <> show x
+
+instance RoundingMode r => Multiplicative (BigDecimal r) where
+    (*) = mul
+    (^) = pow
+    munit = toBigDecimal (1.0 : Numeric 0)
+
+instance RoundingMode r => Divisible (BigDecimal r) where
+    -- 38 + 2 allows for proper handling of rounding when used with truncation. If we provide a primitive to inspect scale then
+    -- this can be improved substantially.
+    (/) = div 40
+
+#endif

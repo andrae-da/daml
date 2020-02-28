@@ -1492,6 +1492,7 @@ convertTyCon env t
                 if envLfVersion env `supports` featureNumeric
                     then pure TNumeric10
                     else pure TDecimal
+            "BigDec" -> pure (TBuiltin BTBigDecimal)
             _ -> defaultTyCon
     -- TODO(DEL-6953): We need to add a condition on the package name as well.
     | NameIn DA_Internal_LF n <- t =

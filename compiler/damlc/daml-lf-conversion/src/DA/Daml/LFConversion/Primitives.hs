@@ -254,6 +254,28 @@ convertPrim _ "BETextReplicate" (TInt64 :-> TText :-> TText) = EBuiltin BETextRe
 convertPrim _ "BETextSplitOn" (TText :-> TText :-> TList TText) = EBuiltin BETextSplitOn
 convertPrim _ "BETextIntercalate" (TText :-> TList TText :-> TText) = EBuiltin BETextIntercalate
 
+-- Proposed BigDecimal support.
+convertPrim _ "BEBigDecToNumeric" (TText :-> TBigDecimal :-> TOptional(TNumeric n)) =
+  EBuiltin BEBigDecToNumeric `ETyApp` n
+convertPrim _ "BENumericToBigDec" (TNumeric n :-> TBigDecimal) =
+  EBuiltin BENumericToBigDec `ETyApp` n
+convertPrim _ "BEToText" (TBigDecimal :-> TText) =
+    EBuiltin BEToTextBigDec
+convertPrim _ "BEAddBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BEAddBigDec
+convertPrim _ "BESubBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BESubBigDec
+convertPrim _ "BEMulBigDec" (TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BEMulBigDec
+convertPrim _ "BEPowBigDec" (TBigDecimal :-> TInt64 :-> TBigDecimal) =
+    EBuiltin BEPowBigDec
+convertPrim _ "BEDivBigDec" (TInt64 :-> TText :-> TBigDecimal :-> TBigDecimal :-> TBigDecimal) =
+    EBuiltin BEDivBigDec
+convertPrim _ "BEDivModBigDec" (TInt64 :-> TText :-> TBigDecimal :-> TBigDecimal :-> TList TBigDecimal) =
+    EBuiltin BEDivModBigDec
+convertPrim _ "BECompareBigDec" (TBigDecimal :-> TBigDecimal :-> TInt64) =
+    EBuiltin BECompareBigDec
+
 -- Template Desugaring.
 
 convertPrim _ "UCreate" (TCon template :-> TUpdate (TContractId (TCon template')))

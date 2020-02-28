@@ -121,6 +121,11 @@ instance Show Decimal where
   show = primitive @"BEToText"
 #endif
 
+#ifdef DAML_UNSTABLE
+instance Show BigDec where
+  show = primitive @"BEToText"
+#endif
+
 instance Show Text where
   show x = "\"" ++ x ++ "\""
 

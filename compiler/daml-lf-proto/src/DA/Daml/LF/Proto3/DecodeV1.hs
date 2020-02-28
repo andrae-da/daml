@@ -432,6 +432,19 @@ decodeBuiltinFunction = pure . \case
   LF1.BuiltinFunctionTEXT_SPLIT_ON -> BETextSplitOn
   LF1.BuiltinFunctionTEXT_INTERCALATE -> BETextIntercalate
 
+  LF1.BuiltinFunctionBIGDEC_TO_NUMERIC -> BEBigDecToNumeric
+  LF1.BuiltinFunctionNUMERIC_TO_BIGDEC -> BENumericToBigDec
+  LF1.BuiltinFunctionTO_TEXT_BIGDEC    -> BEToTextBigDec
+  LF1.BuiltinFunctionADD_BIGDEC        -> BEAddBigDec
+  LF1.BuiltinFunctionSUB_BIGDEC        -> BESubBigDec
+  LF1.BuiltinFunctionMUL_BIGDEC        -> BEMulBigDec
+  LF1.BuiltinFunctionPOW_BIGDEC        -> BEPowBigDec
+  LF1.BuiltinFunctionDIV_BIGDEC        -> BEDivBigDec
+  LF1.BuiltinFunctionDIVMOD_BIGDEC     -> BEDivModBigDec
+  LF1.BuiltinFunctionCOMPARE_BIGDEC    -> BECompareBigDec
+
+
+
 decodeLocation :: LF1.Location -> Decode SourceLoc
 decodeLocation (LF1.Location mbModRef mbRange) = do
   mbModRef' <- traverse decodeModuleRef mbModRef
@@ -696,6 +709,7 @@ decodePrim = pure . \case
   LF1.PrimTypeINT64 -> BTInt64
   LF1.PrimTypeDECIMAL -> BTDecimal
   LF1.PrimTypeNUMERIC -> BTNumeric
+  LF1.PrimTypeBIGDECIMAL -> BTBigDecimal
   LF1.PrimTypeTEXT    -> BTText
   LF1.PrimTypeTIMESTAMP -> BTTimestamp
   LF1.PrimTypePARTY   -> BTParty

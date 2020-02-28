@@ -60,6 +60,7 @@ object Util {
   val TParty = TBuiltin(BTParty)
   val TAny = TBuiltin(BTAny)
   val TTypeRep = TBuiltin(BTTypeRep)
+  val TBigDecimal = TBuiltin(BTBigDecimal)
 
   val TNumeric = new ParametricType1(BTNumeric)
   val TList = new ParametricType1(BTList)

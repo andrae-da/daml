@@ -148,6 +148,7 @@ data BuiltinType
   = BTInt64
   | BTDecimal
   | BTNumeric
+  | BTBigDecimal
   | BTText
   | BTTimestamp
   | BTDate
@@ -316,6 +317,18 @@ data BuiltinExpr
   | BETextReplicate              -- :: Int64 -> Text -> Text
   | BETextSplitOn                -- :: Text -> Text -> [Text]
   | BETextIntercalate            -- :: Text -> [Text] -> Text
+
+  -- BigDecimal operations
+  | BENumericToBigDec            -- :: Numeric n -> BigDecimal
+  | BEBigDecToNumeric            -- :: Text -> BigDecimal -> Optional (Numeric n)
+  | BEToTextBigDec               -- :: BigDecimal -> Text
+  | BEAddBigDec                  -- :: BigDecimal -> BigDecimal -> BigDecimal
+  | BESubBigDec                  -- :: BigDecimal -> BigDecimal -> BigDecimal
+  | BEMulBigDec                  -- :: BigDecimal -> BigDecimal -> BigDecimal
+  | BEPowBigDec                  -- :: BigDecimal -> Int -> BigDecimal
+  | BEDivBigDec                  -- :: Int -> Text -> BigDecimal -> BigDecimal -> BigDecimal
+  | BEDivModBigDec               -- :: Int -> Text -> BigDecimal -> BigDecimal -> [BigDecimal, BigDecimal]
+  | BECompareBigDec              -- :: BigDecimal -> BigDecimal -> Int
   deriving (Eq, Data, Generic, NFData, Ord, Show)
 
 

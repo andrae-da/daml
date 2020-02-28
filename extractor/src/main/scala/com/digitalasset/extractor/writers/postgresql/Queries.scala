@@ -308,6 +308,8 @@ object Queries {
         case struct @ V.ValueStruct(_) =>
           throw new IllegalArgumentException(
             s"struct should not be present in contract, as raw structs are not serializable: $struct")
+        case V.ValueBigDecimal(_) =>
+          throw new IllegalArgumentException("toFragment: BigDecimal should never occur (not serialisable)")
       }
     }
   }
