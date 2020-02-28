@@ -5,7 +5,7 @@ daml 1.2
 module BigDecimalTests where
 
 import DA.BigDecimal
-import DA.Optional (fromSome)
+import DA.Optional (fromSome, isNone)
 
 testSuite = scenario do
     testToFromNumeric ()
@@ -63,6 +63,13 @@ testToFromNumeric _ = scenario do
 
     -- Round-trip Test
     assert $ 1.24 == (revert2 . convertTowardZero . revert2 . convertTowardZero) (1.245 : Numeric 10)
+
+    -- out-of-range tests
+    let tento37 = convertCeiling (1_00_00000_00000_00000_00000_00000_00000_00000.0 : Numeric 0)
+        tento38 = sum [tento37, tento37, tento37, tento37, tento37, tento37, tento37, tento37, tento37, tento37]
+    assert $ isNone (toNumeric tento38 : Optional (Numeric 0))
+    assert $ isNone (toNumeric tento37 : Optional (Numeric 1))
+
 
 testAdditive _ = scenario do
     let a : BigDecimal Floor = toBigDecimal (1.14 : Numeric 2)
