@@ -1701,7 +1701,7 @@ need to be evaluated further. ::
 
 .. note:: No `'BigDecimal'` literals
    There are `BigDecimal` values, but no `BigDecimal` literals.
-     
+
 Note that the argument of an embedded expression does not need to be a
 value for the whole to be so.  In the following, we will use the
 symbol ``v`` or ``w`` to represent an expression which is a value.
@@ -2705,7 +2705,7 @@ BigDecimal functions
 [*Available in versions >= 1.dev*]
 
 .. TODO:: Describe the validity flag(s) in some detail.
-  
+
 * ``NUMERIC_TO_BIGDEC : ∀ (α : nat) . 'Numeric' α → 'BigDecimal'``
 
   Converts a given `'Numeric' α` value to a valid `BigDecimal` of the same
@@ -2753,24 +2753,49 @@ BigDecimal functions
 * ``ADD_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
 
   Given two `'BigDecimal'` values `v₁` and `v₂`, yield `v₁ + v₂` if both are
-  valid, or an invalid value of `0` if at least one of the operands is invalid.
-  
+  valid, or an ``invalid`` value if at least one of the operands is invalid.
+
 * ``SUB_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
 
   Given two `'BigDecimal'` values `v₁` and `v₂`, yield `v₁ - v₂` if both are
-  valid, or an invalid value of `0` if at least one of the operands is invalid.
+  valid, or an ``invalid`` value if at least one of the operands is invalid.
 
 * ``MUL_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
 
   Given two `'BigDecimal'` values `v₁` and `v₂`, yield `v₁ · v₂` if both are
-  valid, or an invalid value of `0` if at least one of the operands is invalid.
+  valid, or an ``invalid`` value if at least one of the operands is invalid.
+
+* ``POW_BIGDEC : 'BigDecimal' → 'Int64' → 'BigDecimal'``
+
+  Given a `'BigDecimal'` value `v` and an `Int64` value `n`, yield `vⁿ` if `v`
+  is valid and `n ≥ 0`, or an ``invalid`` value otherwise.
+
+* ``DIV_BIGDEC : 'Int64' →  'Text' →  'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
+
+  Given a maximum precision `n`, a rounding mode (as `'Text'`), and two
+  `'BigDecimal'` values `v₁` and `v₂`, yield `\frac{v₁}{v₂}` rounded to scale
+  `n` using the given rounding mode if both are valid and `v₂ ≠ 0`, or an
+  ``invalid`` value otherwise. Also yield an invalid value if the given
+  precision is invalid (`n < 1`).
+
+* ``DIVMOD_BIGDEC : 'Int64' →  'Text' →  'BigDecimal' → 'BigDecimal' → 'BigDecimal'``
+
+  Given a maximum precision `n`, a rounding mode (as `'Text'`), and two
+  `'BigDecimal'` values `v₁` and `v₂`:
+
+  If both `v₁` and `v₂` are valid and `v₂ ≠ 0`, yield `v₃` and `v₄` where `v₃`
+  is the largest /integral/ number such that `v₁ == v₃ · v₂ + v₄` (division
+  with rest).
+
+  Yield an ``invalid`` value if at least one of the given numbers is invalid,
+  `v₂ == 0`, or if the given precision is invalid (`n < 1`).
 
 * ``COMPARE_BIGDEC : 'BigDecimal' → 'BigDecimal' → 'Int64'``
 
   Given two `'BigDecimal'` values `v₁` and `v₂`, yield an `'Int64`' between
   `-1` and `1` indicating the comparison between `v₁` and `v₂`, according to
   the following semantics:
-  
+
   +---------+---------+------------------------+
   |  `v₁`   | `v₂`    | `COMPARE_BIGDEC v₁ v₂` |
   +=========+=========+========================+
