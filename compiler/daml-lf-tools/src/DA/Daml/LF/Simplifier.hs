@@ -192,16 +192,18 @@ safetyStep = \case
       BETextReplicate -> Safe 2
       BETextSplitOn -> Safe 2
       BETextIntercalate -> Safe 2
+       -- All BigDecimal operations are designed to be safe, returning Optional
+       -- values or "invalid"-flagged numbers in case of trouble
       BENumericToBigDec -> Safe 1
-      BEBigDecToNumeric -> Safe 1 -- returns Optional in case of overflow/rounding trouble
+      BEBigDecToNumeric -> Safe 0 -- arg1 rounding mode passed as text may be invalid
       BEToTextBigDec -> Safe 1
-      BEAddBigDec -> Safe 1
-      BESubBigDec -> Safe 1
-      BEMulBigDec -> Safe 1
-      BEPowBigDec -> Safe 1
-      BEDivBigDec -> Safe 1
-      BEDivModBigDec -> Safe 1
-      BECompareBigDec -> Safe 1
+      BEAddBigDec -> Safe 2
+      BESubBigDec -> Safe 2
+      BEMulBigDec -> Safe 2
+      BEPowBigDec -> Safe 2
+      BEDivBigDec -> Safe 1 -- arg2 rounding mode passed as text may be invalid
+      BEDivModBigDec -> Safe 1  -- arg2 rounding mode passed as text may be invalid
+      BECompareBigDec -> Safe 2
 
   ERecConF _ fs -> minimum (Safe 0 : map snd fs)
   ERecProjF _ _ s -> s `min` Safe 0
